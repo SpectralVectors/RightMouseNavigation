@@ -1,7 +1,16 @@
 import bpy, ctypes
 
+bl_info = {
+    'name': 'Unreal Right Click',
+    'category': 'View 3D',
+    'author': 'Spectral Vectors',
+    'version': (0, 0, 1),
+    'blender': (2, 90, 0),
+    'location': '3D Viewport',
+    "description": "Enables Unreal Engine Viewport Navigation"
+}
 
-class UnrealRightClick(bpy.types.Operator):
+class BLUI_OT_unreal_right_click(bpy.types.Operator):
     """Timer that decides whether to display a menu after Right Click"""
     bl_idname = "blui.unreal_right_click"
     bl_label = "Unreal Right Click"
@@ -68,11 +77,11 @@ class UnrealRightClick(bpy.types.Operator):
         wm.event_timer_remove(self._timer)     
             
 def register():
-    bpy.utils.register_class(UnrealRightClick)
+    bpy.utils.register_class(BLUI_OT_unreal_right_click)
 
 
 def unregister():
-    bpy.utils.unregister_class(UnrealRightClick)
+    bpy.utils.unregister_class(BLUI_OT_unreal_right_click)
 
 
 if __name__ == "__main__":
