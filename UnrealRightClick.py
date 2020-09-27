@@ -26,10 +26,24 @@ class UnrealRightClick(bpy.types.Operator):
                         context.window.cursor_modal_restore()
                         # If the length of time you've been holding down Right Mouse is longer than the threshold value, then try to call a context menu, and if that fails, call a context panel
                         if self._count < self._threshold:
-                            try:
-                                bpy.ops.wm.call_menu(name="VIEW3D_MT_"+context.mode.lower()+"_context_menu")
-                            except:
-                                bpy.ops.wm.call_panel(name="VIEW3D_PT_"+context.mode.lower()+"_context_menu")
+                            # Most of Blender's context menus can be called with
+                            # the code in the 'try: except:' section, but there
+                            # are a few modes that don't follow the same
+                            # conventions, these are accounted for here
+                            if context.mode == 'EDIT_ARMATURE':
+                                bpy.ops.wm.call_menu(name="VIEW3D_MT_"+context.mode.lower()[5:].strip()+"_context_menu")
+                                return{'PASS_THROUGH'}
+                            if context.mode == 'EDIT_SURFACE':
+                                bpy.ops.wm.call_menu(name="VIEW3D_MT_"+context.mode.lower())
+                                return{'PASS_THROUGH'}
+                            if context.mode == 'EDIT_TEXT':
+                                bpy.ops.wm.call_menu(name="VIEW3D_MT_edit_font_context_menu")
+                                return{'PASS_THROUGH'}
+                            else:
+                                try:
+                                    bpy.ops.wm.call_menu(name="VIEW3D_MT_"+context.mode.lower()+"_context_menu")
+                                except:
+                                    bpy.ops.wm.call_panel(name="VIEW3D_PT_"+context.mode.lower()+"_context_menu")
                         self.cancel(context)
                         # We now set the flag to true to exit the modal operator on the next loop through
                         self._finished = True
