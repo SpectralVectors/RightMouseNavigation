@@ -5,4 +5,4 @@ Right Mouse Hold to Navigate
 
 Right Mouse Click to open Context Menus
 
-Mouse Wheel adjust Viewport Move Speed (while Right Mouse is held)
+Mouse Wheel to adjust Viewport Move Speed (while Right Mouse is held)
