@@ -98,24 +98,16 @@ def register():
     bpy.utils.register_class(BLUI_OT_unreal_right_click)
 
 def register_keymaps():
-    kc = bpy.context.window_manager.keyconfigs
+    keyconfig = bpy.context.window_manager.keyconfigs
     areas = 'Window', 'Text', 'Object Mode', '3D View'
 
-    if not all(i in kc.active.keymaps for i in areas):
+    if not all(i in keyconfig.active.keymaps for i in areas):
         bpy.app.timers.register(register_keymaps, first_interval=0.1)
 
     else:
         
         wm = bpy.context.window_manager
-        kc = wm.keyconfigs.addon #addon or user?
-        
-        for key in wm.keyconfigs.user.keymaps["Object Mode"].keymap_items:
-            if (
-                key.idname == "wm.call_menu"
-                and key.type == "RIGHTMOUSE"
-                and key.active
-            ):
-                key.active = False
+        kc = wm.keyconfigs.addon
         
         km = kc.keymaps.new(
             name="3D View",
@@ -130,6 +122,105 @@ def register_keymaps():
         kmi.active = True
         addon_keymaps.append((km, kmi))
 
+        for key in wm.keyconfigs.user.keymaps["Object Mode"].keymap_items:
+            if (
+                key.idname == "wm.call_menu"
+                and key.type == "RIGHTMOUSE"
+                and key.active
+            ):
+                key.active = False
+        for key in wm.keyconfigs.user.keymaps["Mesh"].keymap_items:
+            if (
+                key.idname == "wm.call_menu"
+                and key.type == "RIGHTMOUSE"
+                and key.active
+            ):
+                key.active = False
+        for key in wm.keyconfigs.user.keymaps["Curve"].keymap_items:
+            if (
+                key.idname == "wm.call_menu"
+                and key.type == "RIGHTMOUSE"
+                and key.active
+            ):
+                key.active = False
+        for key in wm.keyconfigs.user.keymaps["Armature"].keymap_items:
+            if (
+                key.idname == "wm.call_menu"
+                and key.type == "RIGHTMOUSE"
+                and key.active
+            ):
+                key.active = False
+        for key in wm.keyconfigs.user.keymaps["Metaball"].keymap_items:
+            if (
+                key.idname == "wm.call_menu"
+                and key.type == "RIGHTMOUSE"
+                and key.active
+            ):
+                key.active = False
+        for key in wm.keyconfigs.user.keymaps["Lattice"].keymap_items:
+            if (
+                key.idname == "wm.call_menu"
+                and key.type == "RIGHTMOUSE"
+                and key.active
+            ):
+                key.active = False
+        for key in wm.keyconfigs.user.keymaps["Font"].keymap_items:
+            if (
+                key.idname == "wm.call_menu"
+                and key.type == "RIGHTMOUSE"
+                and key.active
+            ):
+                key.active = False
+        for key in wm.keyconfigs.user.keymaps["Pose"].keymap_items:
+            if (
+                key.idname == "wm.call_menu"
+                and key.type == "RIGHTMOUSE"
+                and key.active
+            ):
+                key.active = False
+        for key in wm.keyconfigs.user.keymaps["Vertex Paint"].keymap_items:
+            if (
+                key.idname == "wm.call_panel"
+                and key.type == "RIGHTMOUSE"
+                and key.active
+            ):
+                key.active = False
+        for key in wm.keyconfigs.user.keymaps["Weight Paint"].keymap_items:
+            if (
+                key.idname == "wm.call_panel"
+                and key.type == "RIGHTMOUSE"
+                and key.active
+            ):
+                key.active = False
+        for key in wm.keyconfigs.user.keymaps["Image Paint"].keymap_items:
+            if (
+                key.idname == "wm.call_panel"
+                and key.type == "RIGHTMOUSE"
+                and key.active
+            ):
+                key.active = False
+        for key in wm.keyconfigs.user.keymaps["Sculpt"].keymap_items:
+            if (
+                key.idname == "wm.call_panel"
+                and key.type == "RIGHTMOUSE"
+                and key.active
+            ):
+                key.active = False
+        for key in wm.keyconfigs.user.keymaps["View3D Walk Modal"].keymap_items:
+            if (
+                key.propvalue == "CANCEL"
+                and key.type == "RIGHTMOUSE"
+                and key.active
+            ):
+                key.active = False
+        for key in wm.keyconfigs.user.keymaps["View3D Walk Modal"].keymap_items:
+            if (
+                key.propvalue == "CONFIRM"
+                and key.type == "LEFTMOUSE"
+                and key.active
+            ):
+                key.type = "RIGHTMOUSE"
+                key.value = "RELEASE"
         pass
 
 
@@ -139,18 +230,96 @@ def unregister():
    
     wm = bpy.context.window_manager
     kc = wm.keyconfigs.addon
-    
-    for key in wm.keyconfigs.user.keymaps["Object Mode"].keymap_items:
-        if (
-            key.idname == "wm.call_menu"
-            and key.type == "RIGHTMOUSE"
-        ):
-            key.active = True
 
     for km, kmi in addon_keymaps:
             km.keymap_items.remove(kmi)
             wm.keyconfigs.addon.keymaps.remove(km)
     addon_keymaps.clear()
 
+    for key in wm.keyconfigs.user.keymaps["Object Mode"].keymap_items:
+        if (
+            key.idname == "wm.call_menu"
+            and key.type == "RIGHTMOUSE"
+        ):
+            key.active = True
+    for key in wm.keyconfigs.user.keymaps["Mesh"].keymap_items:
+        if (
+            key.idname == "wm.call_menu"
+            and key.type == "RIGHTMOUSE"
+        ):
+            key.active = True
+    for key in wm.keyconfigs.user.keymaps["Curve"].keymap_items:
+        if (
+            key.idname == "wm.call_menu"
+            and key.type == "RIGHTMOUSE"
+        ):
+            key.active = True
+    for key in wm.keyconfigs.user.keymaps["Armature"].keymap_items:
+        if (
+            key.idname == "wm.call_menu"
+            and key.type == "RIGHTMOUSE"
+        ):
+            key.active = True
+    for key in wm.keyconfigs.user.keymaps["Metaball"].keymap_items:
+        if (
+            key.idname == "wm.call_menu"
+            and key.type == "RIGHTMOUSE"
+        ):
+            key.active = True
+    for key in wm.keyconfigs.user.keymaps["Lattice"].keymap_items:
+        if (
+            key.idname == "wm.call_menu"
+            and key.type == "RIGHTMOUSE"
+        ):
+            key.active = True
+    for key in wm.keyconfigs.user.keymaps["Font"].keymap_items:
+        if (
+            key.idname == "wm.call_menu"
+            and key.type == "RIGHTMOUSE"
+        ):
+            key.active = True
+    for key in wm.keyconfigs.user.keymaps["Pose"].keymap_items:
+        if (
+            key.idname == "wm.call_menu"
+            and key.type == "RIGHTMOUSE"
+        ):
+            key.active = True
+    for key in wm.keyconfigs.user.keymaps["Vertex Paint"].keymap_items:
+        if (
+            key.idname == "wm.call_panel"
+            and key.type == "RIGHTMOUSE"
+        ):
+            key.active = True
+    for key in wm.keyconfigs.user.keymaps["Weight Paint"].keymap_items:
+        if (
+            key.idname == "wm.call_panel"
+            and key.type == "RIGHTMOUSE"
+        ):
+            key.active = True
+    for key in wm.keyconfigs.user.keymaps["Image Paint"].keymap_items:
+        if (
+            key.idname == "wm.call_panel"
+            and key.type == "RIGHTMOUSE"
+        ):
+            key.active = True
+    for key in wm.keyconfigs.user.keymaps["Sculpt"].keymap_items:
+        if (
+            key.idname == "wm.call_panel"
+            and key.type == "RIGHTMOUSE"
+        ):
+            key.active = True
+    for key in wm.keyconfigs.user.keymaps["View3D Walk Modal"].keymap_items:
+        if (
+            key.propvalue == "CANCEL"
+            and key.type == "RIGHTMOUSE"
+        ):
+            key.active = True
+    for key in wm.keyconfigs.user.keymaps["View3D Walk Modal"].keymap_items:
+        if (
+            key.propvalue == "CONFIRM"
+            and key.type == "RIGHTMOUSE"
+        ):
+            key.type = "LEFTMOUSE"
+            key.value = "PRESS"
 if __name__ == "__main__":
     register()
