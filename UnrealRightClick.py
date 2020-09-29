@@ -18,12 +18,13 @@ class BLUI_OT_unreal_right_click(bpy.types.Operator):
 
     _timer = None
     _count = 0
-    _threshold = 0.3
+    _threshold = 0.2
     MOUSE_RIGHTUP = 0x0010
     _finished = False
 
     def modal(self, context, event):
-        # The _finished Boolean acts as a flag to exit the modal loop, it is not made True until after the cancel function is called
+        # The _finished Boolean acts as a flag to exit the modal loop, 
+        # it is not made True until after the cancel function is called
         if self._finished == True:
             return{'CANCELLED'}
         if context.space_data.type == 'VIEW_3D':
@@ -33,26 +34,39 @@ class BLUI_OT_unreal_right_click(bpy.types.Operator):
                         ctypes.windll.user32.mouse_event(self.MOUSE_RIGHTUP)
                         # This brings back our mouse cursor to use with the menu
                         context.window.cursor_modal_restore()
-                        # If the length of time you've been holding down Right Mouse is longer than the threshold value, then try to call a context menu, and if that fails, call a context panel
+                        # If the length of time you've been holding down 
+                        # Right Mouse is longer than the threshold value, 
+                        # then try to call a context menu, and if that fails, 
+                        # call a context panel
                         if self._count < self._threshold:
                             # Most of Blender's context menus can be called with
                             # the code in the 'try: except:' section, but there
                             # are a few modes that don't follow the same
                             # conventions, these are accounted for here
                             if context.mode == 'EDIT_ARMATURE':
-                                bpy.ops.wm.call_menu(name="VIEW3D_MT_"+context.mode.lower()[5:].strip()+"_context_menu")
+                                bpy.ops.wm.call_menu(
+                                    name="VIEW3D_MT_" + context.mode.lower()[5:].strip() + "_context_menu"
+                                    )
                                 return{'PASS_THROUGH'}
                             if context.mode == 'EDIT_SURFACE':
-                                bpy.ops.wm.call_menu(name="VIEW3D_MT_"+context.mode.lower())
+                                bpy.ops.wm.call_menu(
+                                    name="VIEW3D_MT_" + context.mode.lower()
+                                    )
                                 return{'PASS_THROUGH'}
                             if context.mode == 'EDIT_TEXT':
-                                bpy.ops.wm.call_menu(name="VIEW3D_MT_edit_font_context_menu")
+                                bpy.ops.wm.call_menu(
+                                    name="VIEW3D_MT_edit_font_context_menu"
+                                    )
                                 return{'PASS_THROUGH'}
                             else:
                                 try:
-                                    bpy.ops.wm.call_menu(name="VIEW3D_MT_"+context.mode.lower()+"_context_menu")
+                                    bpy.ops.wm.call_menu(
+                                        name="VIEW3D_MT_" + context.mode.lower() + "_context_menu"
+                                        )
                                 except:
-                                    bpy.ops.wm.call_panel(name="VIEW3D_PT_"+context.mode.lower()+"_context_menu")
+                                    bpy.ops.wm.call_panel(
+                                        name="VIEW3D_PT_" + context.mode.lower() + "_context_menu"
+                                        )
                         self.cancel(context)
                         # We now set the flag to true to exit the modal operator on the next loop through
                         self._finished = True
@@ -75,14 +89,68 @@ class BLUI_OT_unreal_right_click(bpy.types.Operator):
     def cancel(self, context):
         wm = context.window_manager
         wm.event_timer_remove(self._timer)     
-            
+
+addon_keymaps = []
+
 def register():
+
+    register_keymaps()
     bpy.utils.register_class(BLUI_OT_unreal_right_click)
+
+def register_keymaps():
+    kc = bpy.context.window_manager.keyconfigs
+    areas = 'Window', 'Text', 'Object Mode', '3D View'
+
+    if not all(i in kc.active.keymaps for i in areas):
+        bpy.app.timers.register(register_keymaps, first_interval=0.1)
+
+    else:
+        
+        wm = bpy.context.window_manager
+        kc = wm.keyconfigs.addon #addon or user?
+        
+        for key in wm.keyconfigs.user.keymaps["Object Mode"].keymap_items:
+            if (
+                key.idname == "wm.call_menu"
+                and key.type == "RIGHTMOUSE"
+                and key.active
+            ):
+                key.active = False
+        
+        km = kc.keymaps.new(
+            name="3D View",
+            space_type='VIEW_3D',
+            region_type='WINDOW'
+            )
+        kmi = km.keymap_items.new(
+            "blui.unreal_right_click",
+            'RIGHTMOUSE',
+            'PRESS'
+            )                          
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+
+        pass
 
 
 def unregister():
+    
     bpy.utils.unregister_class(BLUI_OT_unreal_right_click)
+   
+    wm = bpy.context.window_manager
+    kc = wm.keyconfigs.addon
+    
+    for key in wm.keyconfigs.user.keymaps["Object Mode"].keymap_items:
+        if (
+            key.idname == "wm.call_menu"
+            and key.type == "RIGHTMOUSE"
+        ):
+            key.active = True
 
+    for km, kmi in addon_keymaps:
+            km.keymap_items.remove(kmi)
+            wm.keyconfigs.addon.keymaps.remove(km)
+    addon_keymaps.clear()
 
 if __name__ == "__main__":
     register()
