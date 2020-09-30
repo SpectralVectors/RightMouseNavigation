@@ -4,7 +4,7 @@ bl_info = {
     'name': 'Unreal Right Click',
     'category': 'View 3D',
     'author': 'Spectral Vectors',
-    'version': (0, 0, 1),
+    'version': (0, 0, 2),
     'blender': (2, 90, 0),
     'location': '3D Viewport',
     "description": "Enables Unreal Engine Viewport Navigation"
@@ -79,12 +79,18 @@ class BLUI_OT_unreal_right_click(bpy.types.Operator):
     def execute(self, context):
         # Execute is the first thing called in our operator, so we start by
         # calling Blender's built-in Walk Navigation
-        bpy.ops.view3d.walk('INVOKE_DEFAULT')
-        wm = context.window_manager
-        # Adding the timer and starting the loop
-        self._timer = wm.event_timer_add(0.1, window=context.window)
-        wm.modal_handler_add(self)
-        return {'RUNNING_MODAL'}
+        if context.space_data.type == 'VIEW_3D':
+            bpy.ops.view3d.walk('INVOKE_DEFAULT')
+            wm = context.window_manager
+            # Adding the timer and starting the loop
+            self._timer = wm.event_timer_add(0.1, window=context.window)
+            wm.modal_handler_add(self)
+            return {'RUNNING_MODAL'}
+        elif context.space_data.type == 'IMAGE_EDITOR':
+            bpy.ops.wm.call_panel(
+                name="VIEW3D_PT_" + context.mode.lower() + "_context_menu"
+                )
+            return {'FINISHED'}
 
     def cancel(self, context):
         wm = context.window_manager
