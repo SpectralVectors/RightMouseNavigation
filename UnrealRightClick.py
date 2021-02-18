@@ -1,4 +1,4 @@
-import bpy, ctypes
+import bpy, ctypes, math
 
 bl_info = {
     'name': 'Unreal Right Click',
@@ -9,6 +9,8 @@ bl_info = {
     'location': '3D Viewport',
     "description": "Enables Unreal Engine Viewport Navigation"
 }
+class POINT(ctypes.Structure):
+    _fields_ = [("x", ctypes.c_long), ("y", ctypes.c_long)]
 
 class BLUI_OT_unreal_right_click(bpy.types.Operator):
     """Timer that decides whether to display a menu after Right Click"""
@@ -18,63 +20,97 @@ class BLUI_OT_unreal_right_click(bpy.types.Operator):
 
     _timer = None
     _count = 0
-    _threshold = 0.2
+    _move_distance = 0
+    _distance_threshold = 20
+    _time_threshold = 0.3
     MOUSE_RIGHTUP = 0x0010
+    MOUSE_MOVE = 0x0001
     _finished = False
+    _callMenu = False
 
     def modal(self, context, event):
         # The _finished Boolean acts as a flag to exit the modal loop, 
         # it is not made True until after the cancel function is called
         if self._finished == True:
+            # Reset blender window cursor to previous position
+            context.window.cursor_warp(self.view_x, self.view_y)
+            # Reset Windows OS cursor to previous position
+            ctypes.windll.user32.SetCursorPos(self.mouse_x, self.mouse_y)
+            if self._callMenu == True:
+                self.callMenu(context)
             return{'CANCELLED'}
         if context.space_data.type == 'VIEW_3D':
-                if event.type in {'RIGHTMOUSE'}: 
-                    if event.value in {'RELEASE'}:
-                        # This fakes a Right Mouse Up event using Ctypes
-                        ctypes.windll.user32.mouse_event(self.MOUSE_RIGHTUP)
-                        # This brings back our mouse cursor to use with the menu
-                        context.window.cursor_modal_restore()
-                        # If the length of time you've been holding down 
-                        # Right Mouse is longer than the threshold value, 
-                        # then try to call a context menu, and if that fails, 
-                        # call a context panel
-                        if self._count < self._threshold:
-                            # Most of Blender's context menus can be called with
-                            # the code in the 'try: except:' section, but there
-                            # are a few modes that don't follow the same
-                            # conventions, these are accounted for here
-                            if context.mode == 'EDIT_ARMATURE':
-                                bpy.ops.wm.call_menu(
-                                    name="VIEW3D_MT_" + context.mode.lower()[5:].strip() + "_context_menu"
-                                    )
-                                return{'PASS_THROUGH'}
-                            if context.mode == 'EDIT_SURFACE':
-                                bpy.ops.wm.call_menu(
-                                    name="VIEW3D_MT_" + context.mode.lower()
-                                    )
-                                return{'PASS_THROUGH'}
-                            if context.mode == 'EDIT_TEXT':
-                                bpy.ops.wm.call_menu(
-                                    name="VIEW3D_MT_edit_font_context_menu"
-                                    )
-                                return{'PASS_THROUGH'}
-                            else:
-                                try:
-                                    bpy.ops.wm.call_menu(
-                                        name="VIEW3D_MT_" + context.mode.lower() + "_context_menu"
-                                        )
-                                except:
-                                    bpy.ops.wm.call_panel(
-                                        name="VIEW3D_PT_" + context.mode.lower() + "_context_menu"
-                                        )
-                        self.cancel(context)
-                        # We now set the flag to true to exit the modal operator on the next loop through
-                        self._finished = True
-                        return {'PASS_THROUGH'}
+            # Calculate mousemove distance before it reaches threshold
+            if event.type == "MOUSEMOVE" and self._move_distance < self._distance_threshold:
+                xDelta = event.mouse_x - event.mouse_prev_x
+                yDelta = event.mouse_y - event.mouse_prev_y
+                deltaDistance = math.sqrt(xDelta*xDelta + yDelta*yDelta)
+                self._move_distance += deltaDistance
 
-                if event.type == 'TIMER':
+            if event.type in {'RIGHTMOUSE'}:
+                if event.value in {'RELEASE'}:
+                    # This fakes a Right Mouse Up event using Ctypes
+                    ctypes.windll.user32.mouse_event(self.MOUSE_RIGHTUP)
+                    # This brings back our mouse cursor to use with the menu
+                    context.window.cursor_modal_restore()
+                    # If the length of time you've been holding down 
+                    # Right Mouse and Mouse move distance is longer than the threshold value, 
+                    # then set flag to call a context menu
+                    if self._move_distance < self._distance_threshold and self._count < self._time_threshold:
+                        # context.window.cursor_warp(self.view_x, self.view_y)
+                        self._callMenu = True
+                    self.cancel(context)
+                    # We now set the flag to true to exit the modal operator on the next loop through
+                    self._finished = True
+                    return {'PASS_THROUGH'}
+
+            if event.type == 'TIMER':
+                if self._count <= self._time_threshold:
                     self._count += 0.01
-                return {'PASS_THROUGH'}
+            return {'PASS_THROUGH'}
+
+    def callMenu(self, context):
+        # try to call a context menu, and if that fails, 
+        # call a context panel
+        # Most of Blender's context menus can be called with
+        # the code in the 'try: except:' section, but there
+        # are a few modes that don't follow the same
+        # conventions, these are accounted for here
+        if context.mode == 'EDIT_ARMATURE':
+            bpy.ops.wm.call_menu(
+                name="VIEW3D_MT_" + context.mode.lower()[5:].strip() + "_context_menu"
+                )
+            return{'PASS_THROUGH'}
+        if context.mode == 'EDIT_SURFACE':
+            bpy.ops.wm.call_menu(
+                name="VIEW3D_MT_" + context.mode.lower()
+                )
+            return{'PASS_THROUGH'}
+        if context.mode == 'EDIT_TEXT':
+            bpy.ops.wm.call_menu(
+                name="VIEW3D_MT_edit_font_context_menu"
+                )
+            return{'PASS_THROUGH'}
+        else:
+            try:
+                bpy.ops.wm.call_menu(
+                    name="VIEW3D_MT_" + context.mode.lower() + "_context_menu"
+                    )
+            except:
+                bpy.ops.wm.call_panel(
+                    name="VIEW3D_PT_" + context.mode.lower() + "_context_menu"
+                    )
+
+    def invoke(self, context, event):
+        # Store Windows OS cursor position
+        cursor = POINT()
+        ctypes.windll.user32.GetCursorPos(ctypes.byref(cursor))
+        self.mouse_x = cursor.x
+        self.mouse_y = cursor.y
+        # Store Blender cursor position
+        self.view_x = event.mouse_x
+        self.view_y = event.mouse_y
+        return self.execute(context)
 
     def execute(self, context):
         # Execute is the first thing called in our operator, so we start by
@@ -94,7 +130,7 @@ class BLUI_OT_unreal_right_click(bpy.types.Operator):
 
     def cancel(self, context):
         wm = context.window_manager
-        wm.event_timer_remove(self._timer)     
+        wm.event_timer_remove(self._timer)
 
 addon_keymaps = []
 
