@@ -1,5 +1,6 @@
 # RightMouseNavigation
-Enables Unreal Engine-style Right Mouse Viewport Navigation
+Enables Unreal Engine-style Right Mouse Viewport Navigation.
+This addon maps Blender's Walk/Fly Navigation to the Right Mouse Button, while retaining context menu functionality across all 3D Viewport modes for the same button.
 
 ## How to Install
 Download and unzip files, then install by opening __Blender__, selecting __Edit__ > __Preferences__ > __Addons__ > __Install__ then select __RightMouseNavigation.py__ and click __Install Addon__
