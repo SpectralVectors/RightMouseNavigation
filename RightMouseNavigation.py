@@ -4,36 +4,11 @@ bl_info = {
     'name': 'Right Mouse Navigation',
     'category': 'View 3D',
     'author': 'Spectral Vectors',
-    'version': (0, 1, 1),
+    'version': (0, 1, 4),
     'blender': (2, 90, 0),
     'location': '3D Viewport',
     "description": "Enables Right Mouse Viewport Navigation"
     }
-
-class RightMouseNavigationPreferences(bpy.types.AddonPreferences):
-    bl_idname = __name__
-
-    timepreference: bpy.props.FloatProperty(
-        name="Time Threshold",
-        description="How long you have hold right mouse to open menu",
-        default=0.3,
-        min=0.1,
-        max=2
-    )
-
-    distancepreference: bpy.props.FloatProperty(
-        name="Distance Threshold",
-        description="How far you have to move the mouse to trigger navigation",
-        default=20,
-        min=1,
-        max=200
-    )
-
-    def draw(self, context):
-        layout = self.layout
-        row = layout.row()
-        row.prop(self, 'timepreference')
-        row.prop(self, 'distancepreference')
 
 class POINT(ctypes.Structure):
     _fields_ = [("x", ctypes.c_long), ("y", ctypes.c_long)]
@@ -56,7 +31,7 @@ class BLUI_OT_right_mouse_navigation(bpy.types.Operator):
     def modal(self, context, event):
         
         preferences = context.preferences
-        addon_prefs = preferences.addons[__name__].preferences
+        addon_prefs = preferences.addons[__package__].preferences
 
         # Check if the Viewport is Perspective or Orthographic
         if bpy.context.region_data.is_perspective:

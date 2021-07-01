@@ -2,7 +2,7 @@ bl_info = {
     'name': 'Right Mouse Navigation',
     'category': 'View 3D',
     'author': 'Spectral Vectors',
-    'version': (0, 1, 1),
+    'version': (0, 1, 4),
     'blender': (2, 90, 0),
     'location': '3D Viewport',
     "description": "Enables Right Mouse Viewport Navigation"
@@ -10,19 +10,18 @@ bl_info = {
 
 import bpy
 
-from .RightMouseNavigation import(
-    RightMouseNavigationPreferences,
-    BLUI_OT_right_mouse_navigation,        
-)
+from .RightMouseNavigation import BLUI_OT_right_mouse_navigation
+from .Preferences import RightMouseNavigationPreferences        
+
 
 addon_keymaps = []
 
 def register():
 
-    register_keymaps()
     bpy.utils.register_class(RightMouseNavigationPreferences)
     bpy.utils.register_class(BLUI_OT_right_mouse_navigation)
-    
+
+    register_keymaps()    
 
 def register_keymaps():
     keyconfig = bpy.context.window_manager.keyconfigs
