@@ -2,7 +2,7 @@ bl_info = {
     'name': 'Right Mouse Navigation',
     'category': 'View 3D',
     'author': 'Spectral Vectors',
-    'version': (0, 1, 5),
+    'version': (0, 1, 7),
     'blender': (2, 90, 0),
     'location': '3D Viewport',
     "description": "Enables Right Mouse Viewport Navigation"
@@ -56,7 +56,7 @@ def register_keymaps():
         # "Object Mode", "Mesh", "Curve", "Armature", "Metaball", "Lattice",
         # "Font", "Pose"
         for i in menumodes:
-            for key in wm.keyconfigs.user.keymaps[i].keymap_items:
+            for key in kc.keymaps[i].keymap_items:
                 if (
                     key.idname == "wm.call_menu"
                     and key.type == "RIGHTMOUSE"
@@ -67,7 +67,7 @@ def register_keymaps():
         # These Modes call panels instead of menus
         # "Vertex Paint", "Weight Paint", "Image Paint", "Sculpt"
         for i in panelmodes:
-            for key in wm.keyconfigs.user.keymaps[i].keymap_items:
+            for key in kc.keymaps[i].keymap_items:
                 if (
                     key.idname == "wm.call_panel"
                     and key.type == "RIGHTMOUSE"
@@ -76,14 +76,14 @@ def register_keymaps():
                     key.active = False
 
         # Changing the Walk Modal Map        
-        for key in wm.keyconfigs.user.keymaps["View3D Walk Modal"].keymap_items:
+        for key in kc.keymaps["View3D Walk Modal"].keymap_items:
             if (
                 key.propvalue == "CANCEL"
                 and key.type == "RIGHTMOUSE"
                 and key.active
             ):
                 key.active = False
-        for key in wm.keyconfigs.user.keymaps["View3D Walk Modal"].keymap_items:
+        for key in kc.keymaps["View3D Walk Modal"].keymap_items:
             if (
                 key.propvalue == "CONFIRM"
                 and key.type == "LEFTMOUSE"
@@ -102,9 +102,6 @@ def unregister():
         wm = bpy.context.window_manager
         kc = wm.keyconfigs.user
 
-        for km, kmi in addon_keymaps:
-                km.keymap_items.remove(kmi)
-                wm.keyconfigs.user.keymaps.remove(km)
         addon_keymaps.clear()
 
         menumodes = ["Object Mode", "Mesh", "Curve", "Armature", "Metaball", "Lattice", "Font", "Pose"]
@@ -114,31 +111,31 @@ def unregister():
         # "Object Mode", "Mesh", "Curve", "Armature", "Metaball", "Lattice",
         # "Font", "Pose"
         for i in menumodes:
-                for key in wm.keyconfigs.user.keymaps[i].keymap_items:
-                    if (
-                        key.idname == "wm.call_menu"
-                        and key.type == "RIGHTMOUSE"
-                    ):
-                        key.active = True
+            for key in kc.keymaps[i].keymap_items:
+                if (
+                    key.idname == "wm.call_menu"
+                ):
+                    key.type = "RIGHTMOUSE"
+                    key.active = True
 
         # Reactivating panels
         # "Vertex Paint", "Weight Paint", "Image Paint", "Sculpt"    
         for i in panelmodes:
-                for key in wm.keyconfigs.user.keymaps[i].keymap_items:
-                    if (
-                        key.idname == "wm.call_panel"
-                        and key.type == "RIGHTMOUSE"
-                    ):
-                        key.active = True
+            for key in kc.keymaps[i].keymap_items:
+                if (
+                    key.idname == "wm.call_panel"
+                ):
+                    key.type = "RIGHTMOUSE"
+                    key.active = True
 
         # Changing the Walk Modal Map back     
-        for key in wm.keyconfigs.user.keymaps["View3D Walk Modal"].keymap_items:
+        for key in kc.keymaps["View3D Walk Modal"].keymap_items:
             if (
                 key.propvalue == "CANCEL"
                 and key.type == "RIGHTMOUSE"
             ):
                 key.active = True
-        for key in wm.keyconfigs.user.keymaps["View3D Walk Modal"].keymap_items:
+        for key in kc.keymaps["View3D Walk Modal"].keymap_items:
             if (
                 key.propvalue == "CONFIRM"
                 and key.type == "RIGHTMOUSE"
