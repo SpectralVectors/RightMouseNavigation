@@ -1,15 +1,5 @@
 import bpy, ctypes, math
 
-bl_info = {
-    'name': 'Right Mouse Navigation',
-    'category': 'View 3D',
-    'author': 'Spectral Vectors',
-    'version': (0, 1, 5),
-    'blender': (2, 90, 0),
-    'location': '3D Viewport',
-    "description": "Enables Right Mouse Viewport Navigation"
-    }
-
 class POINT(ctypes.Structure):
     _fields_ = [("x", ctypes.c_long), ("y", ctypes.c_long)]
 

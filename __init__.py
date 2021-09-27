@@ -2,7 +2,7 @@ bl_info = {
     'name': 'Right Mouse Navigation',
     'category': 'View 3D',
     'author': 'Spectral Vectors',
-    'version': (0, 1, 7),
+    'version': (0, 1, 8),
     'blender': (2, 90, 0),
     'location': '3D Viewport',
     "description": "Enables Right Mouse Viewport Navigation"
@@ -114,8 +114,8 @@ def unregister():
             for key in kc.keymaps[i].keymap_items:
                 if (
                     key.idname == "wm.call_menu"
+                    and key.type == "RIGHTMOUSE"
                 ):
-                    key.type = "RIGHTMOUSE"
                     key.active = True
 
         # Reactivating panels
@@ -124,8 +124,8 @@ def unregister():
             for key in kc.keymaps[i].keymap_items:
                 if (
                     key.idname == "wm.call_panel"
+                    and key.type == "RIGHTMOUSE"
                 ):
-                    key.type = "RIGHTMOUSE"
                     key.active = True
 
         # Changing the Walk Modal Map back     
