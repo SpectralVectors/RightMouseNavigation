@@ -3,7 +3,7 @@ Enables Unreal Engine-style Right Mouse Viewport Navigation.
 
 This addon maps Blender's Walk/Fly Navigation to the Right Mouse Button, while retaining context menu functionality across all 3D Viewport modes for the same button.
 
-[![Install and Use](https://img.youtube.com/vi/wIEsuaaS-Hw/0.jpg)](https://www.youtube.com/embed/wIEsuaaS-Hw)
+[![Install and Use](https://img.youtube.com/vi/wIEsuaaS-Hw/0.jpg)](https://www.youtube.com/watch?v=wIEsuaaS-Hw)
 
 ## How to Install
 Download __RightMouseNavigation.zip__ from the __Releases__ section on the right, then install by opening __Blender__, selecting __Edit__ > __Preferences__ > __Addons__ > __Install__ then select __RightMouseNavigation.zip__ and click __Install Addon__
@@ -24,4 +24,4 @@ Big thanks to __Biaru__ for fixing the context menu/cursor location bug, and add
 
 ## Code Walkthrough
 
-[![Code Walkthrough](https://img.youtube.com/vi/pSrqSz2PcY8/0.jpg)](https://www.youtube.com/embed/pSrqSz2PcY8)
+[![Code Walkthrough](https://img.youtube.com/vi/pSrqSz2PcY8/0.jpg)](https://www.youtube.com/watch?v=pSrqSz2PcY8)
