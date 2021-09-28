@@ -6,7 +6,7 @@ This addon maps Blender's Walk/Fly Navigation to the Right Mouse Button, while r
 ## How to Install
 Download __RightMouseNavigation.zip__ from the __Releases__ section on the right, then install by opening __Blender__, selecting __Edit__ > __Preferences__ > __Addons__ > __Install__ then select __RightMouseNavigation.zip__ and click __Install Addon__
 
-![video](https://www.youtube.com/embed/wIEsuaaS-Hw)
+[![Install and Use](https://img.youtube.com/vi/wIEsuaaS-Hw/0.jpg)](https://www.youtube.com/embed/wIEsuaaS-Hw)
 
 ## How to Use
 
