@@ -18,10 +18,10 @@ Mouse Wheel to adjust Viewport Move Speed (while Right Mouse is held)
 
 You can adjust the threshold for when you navigate/open menus by adjusting the time the mouse button is held, or distance the cursor travels in __Edit__ > __Preferences__ > __Addons__ > __View 3D: Right Mouse Navigation__ by clicking the dropdown arrow and tweaking the values there.
 
-## Code Walkthrough
-
-[![Code Walkthrough](https://img.youtube.com/vi/pSrqSz2PcY8/0.jpg)](https://www.youtube.com/embed/pSrqSz2PcY8)
-
 ## Acknowledgements and Thanks
 
 Big thanks to __Biaru__ for fixing the context menu/cursor location bug, and adding a 'mouse movement' threshold, in addition to the time threshold for fine-tuning when you navigate vs open the context menu!
+
+## Code Walkthrough
+
+[![Code Walkthrough](https://img.youtube.com/vi/pSrqSz2PcY8/0.jpg)](https://www.youtube.com/embed/pSrqSz2PcY8)
