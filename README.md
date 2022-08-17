@@ -18,6 +18,8 @@ Mouse Wheel to adjust Viewport Move Speed (while Right Mouse is held)
 
 You can adjust the threshold for when you navigate/open menus by adjusting the time the mouse button is held, or distance the cursor travels in __Edit__ > __Preferences__ > __Addons__ > __View 3D: Right Mouse Navigation__ by clicking the dropdown arrow and tweaking the values there.
 
+Additionally, in the settings, you can change the cursor resetting behavior. By default, the cursor will stay in the center after navigation exit, matching where the navigation crosshair was. If you want to instead set the cursor back to the location where you initally clicked Right Mouse Button (old behavior before 0.1.9), you can enable the setting.
+
 ## Acknowledgements and Thanks
 
 Big thanks to __Biaru__ for fixing the context menu/cursor location bug, and adding a 'mouse movement' threshold, in addition to the time threshold for fine-tuning when you navigate vs open the context menu!

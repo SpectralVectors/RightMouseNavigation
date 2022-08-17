@@ -19,8 +19,18 @@ class RightMouseNavigationPreferences(bpy.types.AddonPreferences):
         max=200
     )
 
+    reset_cursor_on_exit: bpy.props.BoolProperty(
+        name="Reset Cursor on Exit",
+        description="After exiting navigation, this determines if the cursor resets to where RMB was clicked (if checked) or stays in the center (if unchecked)",
+        default=False
+    )
+
     def draw(self, context):
         layout = self.layout
-        row = layout.row()
-        row.prop(self, 'timepreference')
-        row.prop(self, 'distancepreference')
+
+        layout.label(text="Menu Trigger Preferences")
+        layout.prop(self, 'timepreference')
+        layout.prop(self, 'distancepreference')
+
+        layout.label(text="Cursor Preferences")
+        layout.prop(self, 'reset_cursor_on_exit')

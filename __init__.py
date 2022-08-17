@@ -2,7 +2,7 @@ bl_info = {
     'name': 'Right Mouse Navigation',
     'category': 'View 3D',
     'author': 'Spectral Vectors',
-    'version': (0, 1, 8),
+    'version': (0, 1, 9),
     'blender': (2, 90, 0),
     'location': '3D Viewport',
     "description": "Enables Right Mouse Viewport Navigation"
