@@ -29,13 +29,23 @@ class BLUI_OT_right_mouse_navigation(bpy.types.Operator):
 
         # The _finished Boolean acts as a flag to exit the modal loop, 
         # it is not made True until after the cancel function is called
-        if self._finished == True:
-            # Reset blender window cursor to previous position
-            context.window.cursor_warp(self.view_x, self.view_y)
-            # Reset Windows OS cursor to previous position
-            ctypes.windll.user32.SetCursorPos(self.mouse_x, self.mouse_y)
-            if self._callMenu == True:
+        if self._finished:
+
+            def reset_cursor():
+                # Reset blender window cursor to previous position
+                context.window.cursor_warp(self.view_x, self.view_y)
+                # Reset Windows OS cursor to previous position
+                ctypes.windll.user32.SetCursorPos(self.mouse_x, self.mouse_y)
+
+            if self._callMenu:
+                # Always reset the cursor if menu is called, as that implies a canceled navigation
+                reset_cursor()
                 self.callMenu(context)
+            else:
+                # Exit of a full navigation. Only reset the cursor if the preference (default False) is enabled
+                if addon_prefs.reset_cursor_on_exit:
+                    reset_cursor()
+                
             return {'CANCELLED'}
             
         if context.space_data.type == 'VIEW_3D':
