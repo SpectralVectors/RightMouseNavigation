@@ -1,10 +1,10 @@
 bl_info = {
     'name': 'Right Mouse Navigation',
-    'category': 'View 3D',
+    'category': '3D View',
     'author': 'Spectral Vectors',
-    'version': (0, 1, 9),
+    'version': (2, 0, 0),
     'blender': (2, 90, 0),
-    'location': '3D Viewport',
+    'location': '3D Viewport, Node Editor',
     "description": "Enables Right Mouse Viewport Navigation"
     }
 
@@ -24,18 +24,19 @@ def register():
 
         register_keymaps()    
 
+
 def register_keymaps():
     keyconfig = bpy.context.window_manager.keyconfigs
-    areas = 'Window', 'Text', 'Object Mode', '3D View'
+    areas = 'Window', 'Text', 'Object Mode', '3D View', 'Image', 'Node Editor'
 
     if not all(i in keyconfig.active.keymaps for i in areas):
         bpy.app.timers.register(register_keymaps, first_interval=0.1)
 
     else:
-        
+
         wm = bpy.context.window_manager
         kc = wm.keyconfigs.user
-        
+
         km = kc.keymaps.new(
             name="3D View",
             space_type='VIEW_3D',
@@ -45,13 +46,26 @@ def register_keymaps():
             "blui.right_mouse_navigation",
             'RIGHTMOUSE',
             'PRESS'
-            )                          
+            )
         kmi.active = True
-        addon_keymaps.append((km, kmi))
+
+        km2 = kc.keymaps.new(
+            name="Node Editor",
+            space_type='NODE_EDITOR',
+            region_type='WINDOW'
+            )
+        kmi2 = km2.keymap_items.new(
+            "blui.right_mouse_navigation",
+            'RIGHTMOUSE',
+            'PRESS'
+            )
+        kmi2.active = False
+
+        addon_keymaps.append((km, kmi, km2, kmi2))
 
         menumodes = ["Object Mode", "Mesh", "Curve", "Armature", "Metaball", "Lattice", "Font", "Pose"]
         panelmodes = ["Vertex Paint", "Weight Paint", "Image Paint", "Sculpt"]
-        
+
         # These Modes all call standard menus
         # "Object Mode", "Mesh", "Curve", "Armature", "Metaball", "Lattice",
         # "Font", "Pose"
@@ -102,11 +116,15 @@ def unregister():
         wm = bpy.context.window_manager
         kc = wm.keyconfigs.user
 
+        for key in kc.keymaps['Node Editor'].keymap_items:
+            if (key.idname == 'blui.right_mouse_navigation'):
+                kc.keymaps['Node Editor'].keymap_items.remove(key)
+
         addon_keymaps.clear()
 
-        menumodes = ["Object Mode", "Mesh", "Curve", "Armature", "Metaball", "Lattice", "Font", "Pose"]
+        menumodes = ["Object Mode", "Mesh", "Curve", "Armature", "Metaball", "Lattice", "Font", "Pose", "Node Editor"]
         panelmodes = ["Vertex Paint", "Weight Paint", "Image Paint", "Sculpt"]
-        
+
         # Reactivating menus
         # "Object Mode", "Mesh", "Curve", "Armature", "Metaball", "Lattice",
         # "Font", "Pose"

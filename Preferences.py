@@ -1,9 +1,27 @@
 import bpy
 
+
+def update_node_keymap(self, context):
+    wm = context.window_manager
+    kc = wm.keyconfigs.user
+    for key in kc.keymaps['Node Editor'].keymap_items:
+        if (
+            key.idname == "wm.call_menu"
+            and key.type == "RIGHTMOUSE"
+        ):
+            key.active = not key.active
+
+        if (
+            key.idname == "blui.right_mouse_navigation"
+            and key.type == "RIGHTMOUSE"
+        ):
+            key.active = not key.active
+
+
 class RightMouseNavigationPreferences(bpy.types.AddonPreferences):
     bl_idname = __package__
 
-    timepreference: bpy.props.FloatProperty(
+    time: bpy.props.FloatProperty(
         name="Time Threshold",
         description="How long you have hold right mouse to open menu",
         default=0.3,
@@ -11,7 +29,7 @@ class RightMouseNavigationPreferences(bpy.types.AddonPreferences):
         max=2
     )
 
-    distancepreference: bpy.props.FloatProperty(
+    distance: bpy.props.FloatProperty(
         name="Distance Threshold",
         description="How far you have to move the mouse to trigger navigation",
         default=20,
@@ -25,12 +43,26 @@ class RightMouseNavigationPreferences(bpy.types.AddonPreferences):
         default=True
     )
 
+    enable_for_node_editors: bpy.props.BoolProperty(
+        name="Enable for Node Editors",
+        description="Right Mouse will pan the view / open the Node Add/Search Menu",
+        default=False,
+        update=update_node_keymap,
+    )
+
     def draw(self, context):
         layout = self.layout
 
-        layout.label(text="Menu Trigger Preferences")
-        layout.prop(self, 'timepreference')
-        layout.prop(self, 'distancepreference')
+        box = layout.box()
+        box.label(text="Menu / Movement", icon='DRIVER_DISTANCE')
+        row = box.row()
+        row.prop(self, 'time')
+        row.prop(self, 'distance')
 
-        layout.label(text="Cursor Preferences")
-        layout.prop(self, 'reset_cursor_on_exit')
+        row = layout.row()
+        box = row.box()
+        box.label(text="Cursor", icon='ORIENTATION_CURSOR')
+        box.prop(self, 'reset_cursor_on_exit')
+        box = row.box()
+        box.label(text='Node Editor', icon='NODETREE')
+        box.prop(self, 'enable_for_node_editors')
