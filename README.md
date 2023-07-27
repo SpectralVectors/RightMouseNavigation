@@ -1,4 +1,5 @@
 # RightMouseNavigation
+![RightMouseNavigation Logo](/RightMouseNavigationLogo.png)
 Enables Unreal Engine-style Right Mouse Viewport Navigation and Blueprint-like Node workflow.
 
 Maps Blender's Walk/Fly Navigation to the Right Mouse Button in addition to the standard context menus in the 3D Viewport.
