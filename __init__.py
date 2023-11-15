@@ -2,7 +2,7 @@ bl_info = {
     'name': 'Right Mouse Navigation',
     'category': '3D View',
     'author': 'Spectral Vectors',
-    'version': (2, 0, 0),
+    'version': (2, 1, 0),
     'blender': (2, 90, 0),
     'location': '3D Viewport, Node Editor',
     "description": "Enables Right Mouse Viewport Navigation"
@@ -37,11 +37,7 @@ def register_keymaps():
         wm = bpy.context.window_manager
         kc = wm.keyconfigs.user
 
-        km = kc.keymaps.new(
-            name="3D View",
-            space_type='VIEW_3D',
-            region_type='WINDOW'
-            )
+        km = kc.keymaps['3D View']
         kmi = km.keymap_items.new(
             "blui.right_mouse_navigation",
             'RIGHTMOUSE',
@@ -49,11 +45,7 @@ def register_keymaps():
             )
         kmi.active = True
 
-        km2 = kc.keymaps.new(
-            name="Node Editor",
-            space_type='NODE_EDITOR',
-            region_type='WINDOW'
-            )
+        km2 = kc.keymaps['Node Editor']
         kmi2 = km2.keymap_items.new(
             "blui.right_mouse_navigation",
             'RIGHTMOUSE',

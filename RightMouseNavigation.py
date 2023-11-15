@@ -96,7 +96,7 @@ class BLUI_OT_right_mouse_navigation(bpy.types.Operator):
     def callMenu(self, context):
         if context.space_data.type == 'NODE_EDITOR':
             if context.space_data.node_tree:
-                bpy.ops.node.add_search('INVOKE_DEFAULT')
+                    bpy.ops.wm.search_menu('INVOKE_DEFAULT')
         else:
             try:
                 bpy.ops.wm.call_menu(name=self.menu_by_mode[context.mode])
