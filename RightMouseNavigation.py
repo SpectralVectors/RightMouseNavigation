@@ -1,6 +1,10 @@
-import bpy, ctypes, math, sys
+import bpy
+from bpy.types import Operator
+import ctypes
+import sys
 
-class BLUI_OT_right_mouse_navigation(bpy.types.Operator):
+
+class BLUI_OT_right_mouse_navigation(Operator):
     """Timer that decides whether to display a menu after Right Click"""
     bl_idname = "blui.right_mouse_navigation"
     bl_label = "Right Mouse Navigation"
@@ -8,7 +12,6 @@ class BLUI_OT_right_mouse_navigation(bpy.types.Operator):
 
     _timer = None
     _count = 0
-    _move_distance = 0
     MOUSE_RIGHTUP = 0x0010
     _finished = False
     _callMenu = False
@@ -27,34 +30,44 @@ class BLUI_OT_right_mouse_navigation(bpy.types.Operator):
         'PAINT_VERTEX': 'VIEW3D_PT_paint_vertex_context_menu',
         'PAINT_WEIGHT': 'VIEW3D_PT_paint_weight_context_menu',
         'PAINT_TEXTURE': 'VIEW3D_PT_paint_texture_context_menu',
-        'SCULPT': 'VIEW3D_PT_sculpt_context_menu'}
+        'SCULPT': 'VIEW3D_PT_sculpt_context_menu',
+    }
 
     def modal(self, context, event):
 
         preferences = context.preferences
         addon_prefs = preferences.addons[__package__].preferences
+        enable_nodes = addon_prefs.enable_for_node_editors
 
-        if context.space_data.type == 'VIEW_3D':
+        space_type = context.space_data.type
+
+        if space_type == 'VIEW_3D':
             # Check if the Viewport is Perspective or Orthographic
             if bpy.context.region_data.is_perspective:
                 self._ortho = False
             else:
                 self._back_to_ortho = True
 
-        # The _finished Boolean acts as a flag to exit the modal loop, 
+        # The _finished Boolean acts as a flag to exit the modal loop,
         # it is not made True until after the cancel function is called
         if self._finished:
 
             def reset_cursor():
                 # Reset blender window cursor to previous position
-                context.window.cursor_warp(self.view_x, self.view_y)
+                area = context.area
+                x = area.x
+                y = area.y
+                x += int(area.width / 2)
+                y += int(area.height / 2)
+                bpy.context.window.cursor_warp(x, y)
 
             if self._callMenu:
                 # Always reset the cursor if menu is called, as that implies a canceled navigation
-                reset_cursor()
+                if addon_prefs.reset_cursor_on_exit and not space_type == 'NODE_EDITOR':
+                    reset_cursor()
                 self.callMenu(context)
             else:
-                # Exit of a full navigation. Only reset the cursor if the preference (default False) is enabled
+                # Exit of a full navigation. Only reset the cursor if the preference is enabled
                 if addon_prefs.reset_cursor_on_exit:
                     reset_cursor()
 
@@ -63,44 +76,37 @@ class BLUI_OT_right_mouse_navigation(bpy.types.Operator):
 
             return {'CANCELLED'}
 
-        if context.space_data.type == 'VIEW_3D' or addon_prefs.enable_for_node_editors and context.space_data.type == 'NODE_EDITOR':
-            # Calculate mousemove distance before it reaches threshold
-            if event.type == "MOUSEMOVE" and self._move_distance < addon_prefs.distance:
-                xDelta = event.mouse_x - event.mouse_prev_x
-                yDelta = event.mouse_y - event.mouse_prev_y
-                deltaDistance = math.sqrt(xDelta*xDelta + yDelta*yDelta)
-                self._move_distance += deltaDistance
-
+        if space_type == 'VIEW_3D' or space_type == 'NODE_EDITOR' and enable_nodes:
             if event.type in {'RIGHTMOUSE'}:
                 if event.value in {'RELEASE'}:
-                    if sys.platform == 'win32':
+                    if sys.platform.startswith('win'):
                         # This fakes a Right Mouse Up event using Ctypes
                         ctypes.windll.user32.mouse_event(self.MOUSE_RIGHTUP)
                     # This brings back our mouse cursor to use with the menu
                     context.window.cursor_modal_restore()
-                    # If the length of time you've been holding down 
-                    # Right Mouse and Mouse move distance is longer than the threshold value, 
+                    # If the length of time you've been holding down
+                    # Right Mouse and Mouse move distance is longer than the threshold value,
                     # then set flag to call a context menu
-                    if self._move_distance < addon_prefs.distance and self._count < addon_prefs.time:
+                    if self._count < addon_prefs.time:
                         self._callMenu = True
                     self.cancel(context)
-                    # We now set the flag to true to exit the modal operator on the next loop through
+                    # We now set the flag to true to exit the modal operator on the next loop
                     self._finished = True
                     return {'PASS_THROUGH'}
 
             if event.type == 'TIMER':
                 if self._count <= addon_prefs.time:
-                    self._count += 0.01
+                    self._count += 0.1
             return {'PASS_THROUGH'}
 
     def callMenu(self, context):
         if context.space_data.type == 'NODE_EDITOR':
             if context.space_data.node_tree:
-                    bpy.ops.wm.search_menu('INVOKE_DEFAULT')
+                bpy.ops.wm.search_single_menu('INVOKE_DEFAULT', menu_idname='NODE_MT_add')
         else:
             try:
                 bpy.ops.wm.call_menu(name=self.menu_by_mode[context.mode])
-            except:
+            except RuntimeError:
                 bpy.ops.wm.call_panel(name=self.menu_by_mode[context.mode])
 
     def invoke(self, context, event):
@@ -112,10 +118,13 @@ class BLUI_OT_right_mouse_navigation(bpy.types.Operator):
     def execute(self, context):
         preferences = context.preferences
         addon_prefs = preferences.addons[__package__].preferences
+        enable_nodes = addon_prefs.enable_for_node_editors
+
+        space_type = context.space_data.type
 
         # Execute is the first thing called in our operator, so we start by
         # calling Blender's built-in Walk Navigation
-        if context.space_data.type == 'VIEW_3D':
+        if space_type == 'VIEW_3D':
             bpy.ops.view3d.walk('INVOKE_DEFAULT')
             # Adding the timer and starting the loop
             wm = context.window_manager
@@ -123,16 +132,15 @@ class BLUI_OT_right_mouse_navigation(bpy.types.Operator):
             wm.modal_handler_add(self)
             return {'RUNNING_MODAL'}
 
-        elif addon_prefs.enable_for_node_editors and context.space_data.type == 'NODE_EDITOR':
+        elif space_type == 'NODE_EDITOR' and enable_nodes:
             bpy.ops.view2d.pan('INVOKE_DEFAULT')
-
             wm = context.window_manager
             # Adding the timer and starting the loop
-            self._timer = wm.event_timer_add(0.1, window=context.window)
+            self._timer = wm.event_timer_add(0.01, window=context.window)
             wm.modal_handler_add(self)
             return {'RUNNING_MODAL'}
-        
-        elif context.space_data.type == 'IMAGE_EDITOR':
+
+        elif space_type == 'IMAGE_EDITOR':
             bpy.ops.wm.call_panel(name="VIEW3D_PT_paint_texture_context_menu")
             return {'FINISHED'}
 

@@ -1,16 +1,23 @@
 import bpy
+from bpy.props import (
+    BoolProperty,
+    FloatProperty,
+)
+from bpy.types import AddonPreferences
 
 
 def update_node_keymap(self, context):
     wm = context.window_manager
-    kc = wm.keyconfigs.user
-    for key in kc.keymaps['Node Editor'].keymap_items:
+    active_kc = wm.keyconfigs.active
+    for key in active_kc.keymaps['Node Editor'].keymap_items:
         if (
             key.idname == "wm.call_menu"
             and key.type == "RIGHTMOUSE"
         ):
             key.active = not key.active
 
+    addon_kc = wm.keyconfigs.addon
+    for key in addon_kc.keymaps['Node Editor'].keymap_items:
         if (
             key.idname == "blui.right_mouse_navigation"
             and key.type == "RIGHTMOUSE"
@@ -18,32 +25,25 @@ def update_node_keymap(self, context):
             key.active = not key.active
 
 
-class RightMouseNavigationPreferences(bpy.types.AddonPreferences):
+class RightMouseNavigationPreferences(AddonPreferences):
     bl_idname = __package__
 
-    time: bpy.props.FloatProperty(
+    time: FloatProperty(
         name="Time Threshold",
         description="How long you have hold right mouse to open menu",
-        default=0.3,
+        default=1.0,
         min=0.1,
-        max=2
+        max=10,
     )
 
-    distance: bpy.props.FloatProperty(
-        name="Distance Threshold",
-        description="How far you have to move the mouse to trigger navigation",
-        default=20,
-        min=1,
-        max=200
-    )
-
-    reset_cursor_on_exit: bpy.props.BoolProperty(
+    reset_cursor_on_exit: BoolProperty(
         name="Reset Cursor on Exit",
-        description="After exiting navigation, this determines if the cursor resets to where RMB was clicked (if checked) or stays in the center (if unchecked)",
-        default=True
+        description="After exiting navigation, this determines if the cursor stays "
+        "where RMB was clicked (if unchecked) or resets to the center (if checked)",
+        default=False,
     )
 
-    enable_for_node_editors: bpy.props.BoolProperty(
+    enable_for_node_editors: BoolProperty(
         name="Enable for Node Editors",
         description="Right Mouse will pan the view / open the Node Add/Search Menu",
         default=False,
@@ -55,9 +55,7 @@ class RightMouseNavigationPreferences(bpy.types.AddonPreferences):
 
         box = layout.box()
         box.label(text="Menu / Movement", icon='DRIVER_DISTANCE')
-        row = box.row()
-        row.prop(self, 'time')
-        row.prop(self, 'distance')
+        box.prop(self, 'time')
 
         row = layout.row()
         box = row.box()
