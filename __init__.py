@@ -1,17 +1,6 @@
 from .Preferences import RightMouseNavigationPreferences
-from .RightMouseNavigation import BLUI_OT_right_mouse_navigation
+from .RightMouseNavigation import RMN_OT_right_mouse_navigation
 import bpy
-
-bl_info = {
-    'name': 'Right Mouse Navigation',
-    'category': '3D View',
-    'author': 'Spectral Vectors',
-    'version': (2, 2, 0),
-    'blender': (2, 90, 0),
-    'location': '3D Viewport, Node Editor',
-    "description": "Enables Right Mouse Viewport Navigation"
-}
-
 
 addon_keymaps = []
 
@@ -19,14 +8,14 @@ addon_keymaps = []
 def register():
     if not bpy.app.background:
         bpy.utils.register_class(RightMouseNavigationPreferences)
-        bpy.utils.register_class(BLUI_OT_right_mouse_navigation)
+        bpy.utils.register_class(RMN_OT_right_mouse_navigation)
 
         wm = bpy.context.window_manager
         addon_kc = wm.keyconfigs.addon
 
         km = addon_kc.keymaps.new(name='3D View', space_type='VIEW_3D')
         kmi = km.keymap_items.new(
-            "blui.right_mouse_navigation",
+            "rmn.right_mouse_navigation",
             'RIGHTMOUSE',
             'PRESS'
         )
@@ -34,7 +23,7 @@ def register():
 
         km2 = addon_kc.keymaps.new(name='Node Editor', space_type='NODE_EDITOR')
         kmi2 = km2.keymap_items.new(
-            "blui.right_mouse_navigation",
+            "rmn.right_mouse_navigation",
             'RIGHTMOUSE',
             'PRESS'
         )
@@ -92,14 +81,14 @@ def register():
 def unregister():
     if not bpy.app.background:
 
-        bpy.utils.unregister_class(BLUI_OT_right_mouse_navigation)
+        bpy.utils.unregister_class(RMN_OT_right_mouse_navigation)
         bpy.utils.unregister_class(RightMouseNavigationPreferences)
 
         wm = bpy.context.window_manager
         active_kc = wm.keyconfigs.active
 
         for key in active_kc.keymaps['Node Editor'].keymap_items:
-            if (key.idname == 'blui.right_mouse_navigation'):
+            if (key.idname == 'rmn.right_mouse_navigation'):
                 active_kc.keymaps['Node Editor'].keymap_items.remove(key)
 
         addon_keymaps.clear()

@@ -4,9 +4,9 @@ import ctypes
 import sys
 
 
-class BLUI_OT_right_mouse_navigation(Operator):
+class RMN_OT_right_mouse_navigation(Operator):
     """Timer that decides whether to display a menu after Right Click"""
-    bl_idname = "blui.right_mouse_navigation"
+    bl_idname = "rmn.right_mouse_navigation"
     bl_label = "Right Mouse Navigation"
     bl_options = {'REGISTER', 'UNDO'}
 
@@ -102,7 +102,10 @@ class BLUI_OT_right_mouse_navigation(Operator):
     def callMenu(self, context):
         if context.space_data.type == 'NODE_EDITOR':
             if context.space_data.node_tree:
-                bpy.ops.wm.search_single_menu('INVOKE_DEFAULT', menu_idname='NODE_MT_add')
+                if context.space_data.node_tree.nodes.active is not None and context.space_data.node_tree.nodes.active.select:
+                    bpy.ops.wm.call_menu(name='NODE_MT_context_menu')
+                else:
+                    bpy.ops.wm.search_single_menu('INVOKE_DEFAULT', menu_idname='NODE_MT_add')
         else:
             try:
                 bpy.ops.wm.call_menu(name=self.menu_by_mode[context.mode])
