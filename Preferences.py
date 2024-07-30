@@ -19,7 +19,7 @@ def update_node_keymap(self, context):
     addon_kc = wm.keyconfigs.addon
     for key in addon_kc.keymaps['Node Editor'].keymap_items:
         if (
-            key.idname == "blui.right_mouse_navigation"
+            key.idname == "rmn.right_mouse_navigation"
             and key.type == "RIGHTMOUSE"
         ):
             key.active = not key.active
