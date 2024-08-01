@@ -3,7 +3,7 @@ schema_version = "1.0.0"
 # Example of manifest file for a Blender extension
 # Change the values according to your extension
 id = "right_mouse_navigation"
-version = "2.3.3"
+version = "2.3.4"
 name = "Right Mouse Navigation"
 tagline = "Game Engine-style viewport & node graph navigation"
 maintainer = "Spectral Vectors"
