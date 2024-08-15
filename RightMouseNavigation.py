@@ -1,7 +1,6 @@
 import bpy
 from bpy.types import Operator
-import ctypes
-import sys
+import platform
 
 
 class RMN_OT_right_mouse_navigation(Operator):
@@ -79,9 +78,6 @@ class RMN_OT_right_mouse_navigation(Operator):
         if space_type == 'VIEW_3D' or space_type == 'NODE_EDITOR' and enable_nodes:
             if event.type in {'RIGHTMOUSE'}:
                 if event.value in {'RELEASE'}:
-                    if sys.platform.startswith('win'):
-                        # This fakes a Right Mouse Up event using Ctypes
-                        ctypes.windll.user32.mouse_event(self.MOUSE_RIGHTUP)
                     # This brings back our mouse cursor to use with the menu
                     context.window.cursor_modal_restore()
                     # If the length of time you've been holding down
@@ -100,17 +96,25 @@ class RMN_OT_right_mouse_navigation(Operator):
             return {'PASS_THROUGH'}
 
     def callMenu(self, context):
-        if context.space_data.type == 'NODE_EDITOR':
-            if context.space_data.node_tree:
-                if context.space_data.node_tree.nodes.active is not None and context.space_data.node_tree.nodes.active.select:
-                    bpy.ops.wm.call_menu(name='NODE_MT_context_menu')
-                else:
-                    bpy.ops.wm.search_single_menu('INVOKE_DEFAULT', menu_idname='NODE_MT_add')
+        select_mouse = context.window_manager.keyconfigs.active.preferences.select_mouse
+        space_type = context.space_data.type
+
+        if select_mouse == 'LEFT':
+            if space_type == 'NODE_EDITOR':
+                node_tree = context.space_data.node_tree
+                if node_tree:
+                    if node_tree.nodes.active is not None and node_tree.nodes.active.select:
+                        bpy.ops.wm.call_menu(name='NODE_MT_context_menu')
+                    else:
+                        bpy.ops.wm.search_single_menu('INVOKE_DEFAULT', menu_idname='NODE_MT_add')
+            else:
+                try:
+                    bpy.ops.wm.call_menu(name=self.menu_by_mode[context.mode])
+                except RuntimeError:
+                    bpy.ops.wm.call_panel(name=self.menu_by_mode[context.mode])
         else:
-            try:
-                bpy.ops.wm.call_menu(name=self.menu_by_mode[context.mode])
-            except RuntimeError:
-                bpy.ops.wm.call_panel(name=self.menu_by_mode[context.mode])
+            if space_type == 'VIEW_3D':
+                bpy.ops.view3d.select('INVOKE_DEFAULT')
 
     def invoke(self, context, event):
         # Store Blender cursor position
