@@ -86,12 +86,7 @@ def unregister():
 
         wm = bpy.context.window_manager
         active_kc = wm.keyconfigs.active
-
-        for key in active_kc.keymaps['Node Editor'].keymap_items:
-            if (key.idname == 'rmn.right_mouse_navigation'):
-                active_kc.keymaps['Node Editor'].keymap_items.remove(key)
-
-        addon_keymaps.clear()
+        addon_kc = wm.keyconfigs.addon
 
         menumodes = ["Object Mode", "Mesh", "Curve", "Armature",
                      "Metaball", "Lattice", "Font", "Pose", "Node Editor"]
@@ -133,6 +128,11 @@ def unregister():
                 key.type = "LEFTMOUSE"
                 key.value = "PRESS"
 
+        for km in addon_kc.keymaps:
+            for kmi in km.keymap_items:
+                km.keymap_items.remove(kmi)
+        addon_keymaps.clear()
 
-if __name__ == "__package__":
+
+if __name__ == "__main__":
     register()

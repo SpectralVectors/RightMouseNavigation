@@ -1,7 +1,6 @@
 import bpy
 from bpy.types import Operator
-import ctypes
-import sys
+import platform
 
 
 class RMN_OT_right_mouse_navigation(Operator):
@@ -79,9 +78,6 @@ class RMN_OT_right_mouse_navigation(Operator):
         if space_type == 'VIEW_3D' or space_type == 'NODE_EDITOR' and enable_nodes:
             if event.type in {'RIGHTMOUSE'}:
                 if event.value in {'RELEASE'}:
-                    if sys.platform.startswith('win'):
-                        # This fakes a Right Mouse Up event using Ctypes
-                        ctypes.windll.user32.mouse_event(self.MOUSE_RIGHTUP)
                     # This brings back our mouse cursor to use with the menu
                     context.window.cursor_modal_restore()
                     # If the length of time you've been holding down
