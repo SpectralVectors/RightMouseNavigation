@@ -1,6 +1,5 @@
 import bpy
 from bpy.types import Operator
-import platform
 
 
 class RMN_OT_right_mouse_navigation(Operator):
