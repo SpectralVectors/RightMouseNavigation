@@ -1,5 +1,5 @@
 # RightMouseNavigation
-### Blender 4.2 Support Added, see v2.3.3 under Releases!
+### Blender 4.2 Support Added, see Releases!
 ![RightMouseNavigation Logo](/RightMouseNavigationLogo.png)
 Enables Unreal Engine-style Right Mouse Viewport Navigation and Blueprint-like Node workflow.
 
