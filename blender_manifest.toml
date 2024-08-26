@@ -1,10 +1,10 @@
 schema_version = "1.0.0"
 
 id = "right_mouse_navigation"
-version = "2.3.8"
+version = "2.3.9"
 name = "Right Mouse Navigation"
 tagline = "Game Engine-style Viewport & Node Navigation"
-maintainer = "Spectral Vectors"
+maintainer = "Spectral Vectors and Contributors"
 type = "add-on"
 
 website = "https://github.com/SpectralVectors/RightMouseNavigation"
@@ -13,4 +13,4 @@ tags = ["3D View", "Node", "User Interface"]
 
 blender_version_min = "4.2.0"
 
-license = ["SPDX:GPL-2.0-or-later"]
+license = ["SPDX:GPL-3.0-or-later"]
