@@ -8,6 +8,3 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: psf/black@stable
-        with:
-          options: "--verbose"
-          version: "~= 22.0"
