@@ -4,9 +4,10 @@ from bpy.types import Operator
 
 class RMN_OT_right_mouse_navigation(Operator):
     """Timer that decides whether to display a menu after Right Click"""
+
     bl_idname = "rmn.right_mouse_navigation"
     bl_label = "Right Mouse Navigation"
-    bl_options = {'REGISTER', 'UNDO'}
+    bl_options = {"REGISTER", "UNDO"}
 
     _timer = None
     _count = 0
@@ -16,30 +17,29 @@ class RMN_OT_right_mouse_navigation(Operator):
     _ortho = False
     _back_to_ortho = False
     menu_by_mode = {
-        'OBJECT': 'VIEW3D_MT_object_context_menu',
-        'EDIT_MESH': 'VIEW3D_MT_edit_mesh_context_menu',
-        'EDIT_SURFACE': 'VIEW3D_MT_edit_surface',
-        'EDIT_TEXT': 'VIEW3D_MT_edit_font_context_menu',
-        'EDIT_ARMATURE': 'VIEW3D_MT_edit_armature',
-        'EDIT_CURVE': 'VIEW3D_MT_edit_curve_context_menu',
-        'EDIT_METABALL': 'VIEW3D_MT_edit_metaball_context_menu',
-        'EDIT_LATTICE': 'VIEW3D_MT_edit_lattice_context_menu',
-        'POSE': 'VIEW3D_MT_pose_context_menu',
-        'PAINT_VERTEX': 'VIEW3D_PT_paint_vertex_context_menu',
-        'PAINT_WEIGHT': 'VIEW3D_PT_paint_weight_context_menu',
-        'PAINT_TEXTURE': 'VIEW3D_PT_paint_texture_context_menu',
-        'SCULPT': 'VIEW3D_PT_sculpt_context_menu',
+        "OBJECT": "VIEW3D_MT_object_context_menu",
+        "EDIT_MESH": "VIEW3D_MT_edit_mesh_context_menu",
+        "EDIT_SURFACE": "VIEW3D_MT_edit_surface",
+        "EDIT_TEXT": "VIEW3D_MT_edit_font_context_menu",
+        "EDIT_ARMATURE": "VIEW3D_MT_edit_armature",
+        "EDIT_CURVE": "VIEW3D_MT_edit_curve_context_menu",
+        "EDIT_METABALL": "VIEW3D_MT_edit_metaball_context_menu",
+        "EDIT_LATTICE": "VIEW3D_MT_edit_lattice_context_menu",
+        "POSE": "VIEW3D_MT_pose_context_menu",
+        "PAINT_VERTEX": "VIEW3D_PT_paint_vertex_context_menu",
+        "PAINT_WEIGHT": "VIEW3D_PT_paint_weight_context_menu",
+        "PAINT_TEXTURE": "VIEW3D_PT_paint_texture_context_menu",
+        "SCULPT": "VIEW3D_PT_sculpt_context_menu",
     }
 
     def modal(self, context, event):
-
         preferences = context.preferences
         addon_prefs = preferences.addons[__package__].preferences
         enable_nodes = addon_prefs.enable_for_node_editors
 
         space_type = context.space_data.type
 
-        if space_type == 'VIEW_3D':
+        if space_type == "VIEW_3D":
             # Check if the Viewport is Perspective or Orthographic
             if bpy.context.region_data.is_perspective:
                 self._ortho = False
@@ -61,7 +61,7 @@ class RMN_OT_right_mouse_navigation(Operator):
 
             if self._callMenu:
                 # Always reset the cursor if menu is called, as that implies a canceled navigation
-                if addon_prefs.reset_cursor_on_exit and not space_type == 'NODE_EDITOR':
+                if addon_prefs.reset_cursor_on_exit and not space_type == "NODE_EDITOR":
                     reset_cursor()
                 self.callMenu(context)
             else:
@@ -72,11 +72,11 @@ class RMN_OT_right_mouse_navigation(Operator):
             if self._back_to_ortho:
                 bpy.ops.view3d.view_persportho()
 
-            return {'CANCELLED'}
+            return {"CANCELLED"}
 
-        if space_type == 'VIEW_3D' or space_type == 'NODE_EDITOR' and enable_nodes:
-            if event.type in {'RIGHTMOUSE'}:
-                if event.value in {'RELEASE'}:
+        if space_type == "VIEW_3D" or space_type == "NODE_EDITOR" and enable_nodes:
+            if event.type in {"RIGHTMOUSE"}:
+                if event.value in {"RELEASE"}:
                     # This brings back our mouse cursor to use with the menu
                     context.window.cursor_modal_restore()
                     # If the length of time you've been holding down
@@ -87,33 +87,38 @@ class RMN_OT_right_mouse_navigation(Operator):
                     self.cancel(context)
                     # We now set the flag to true to exit the modal operator on the next loop
                     self._finished = True
-                    return {'PASS_THROUGH'}
+                    return {"PASS_THROUGH"}
 
-            if event.type == 'TIMER':
+            if event.type == "TIMER":
                 if self._count <= addon_prefs.time:
                     self._count += 0.1
-            return {'PASS_THROUGH'}
+            return {"PASS_THROUGH"}
 
     def callMenu(self, context):
         select_mouse = context.window_manager.keyconfigs.active.preferences.select_mouse
         space_type = context.space_data.type
 
-        if select_mouse == 'LEFT':
-            if space_type == 'NODE_EDITOR':
+        if select_mouse == "LEFT":
+            if space_type == "NODE_EDITOR":
                 node_tree = context.space_data.node_tree
                 if node_tree:
-                    if node_tree.nodes.active is not None and node_tree.nodes.active.select:
-                        bpy.ops.wm.call_menu(name='NODE_MT_context_menu')
+                    if (
+                        node_tree.nodes.active is not None
+                        and node_tree.nodes.active.select
+                    ):
+                        bpy.ops.wm.call_menu(name="NODE_MT_context_menu")
                     else:
-                        bpy.ops.wm.search_single_menu('INVOKE_DEFAULT', menu_idname='NODE_MT_add')
+                        bpy.ops.wm.search_single_menu(
+                            "INVOKE_DEFAULT", menu_idname="NODE_MT_add"
+                        )
             else:
                 try:
                     bpy.ops.wm.call_menu(name=self.menu_by_mode[context.mode])
                 except RuntimeError:
                     bpy.ops.wm.call_panel(name=self.menu_by_mode[context.mode])
         else:
-            if space_type == 'VIEW_3D':
-                bpy.ops.view3d.select('INVOKE_DEFAULT')
+            if space_type == "VIEW_3D":
+                bpy.ops.view3d.select("INVOKE_DEFAULT")
 
     def invoke(self, context, event):
         # Store Blender cursor position
@@ -130,25 +135,25 @@ class RMN_OT_right_mouse_navigation(Operator):
 
         # Execute is the first thing called in our operator, so we start by
         # calling Blender's built-in Walk Navigation
-        if space_type == 'VIEW_3D':
-            bpy.ops.view3d.walk('INVOKE_DEFAULT')
+        if space_type == "VIEW_3D":
+            bpy.ops.view3d.walk("INVOKE_DEFAULT")
             # Adding the timer and starting the loop
             wm = context.window_manager
             self._timer = wm.event_timer_add(0.1, window=context.window)
             wm.modal_handler_add(self)
-            return {'RUNNING_MODAL'}
+            return {"RUNNING_MODAL"}
 
-        elif space_type == 'NODE_EDITOR' and enable_nodes:
-            bpy.ops.view2d.pan('INVOKE_DEFAULT')
+        elif space_type == "NODE_EDITOR" and enable_nodes:
+            bpy.ops.view2d.pan("INVOKE_DEFAULT")
             wm = context.window_manager
             # Adding the timer and starting the loop
             self._timer = wm.event_timer_add(0.01, window=context.window)
             wm.modal_handler_add(self)
-            return {'RUNNING_MODAL'}
+            return {"RUNNING_MODAL"}
 
-        elif space_type == 'IMAGE_EDITOR':
+        elif space_type == "IMAGE_EDITOR":
             bpy.ops.wm.call_panel(name="VIEW3D_PT_paint_texture_context_menu")
-            return {'FINISHED'}
+            return {"FINISHED"}
 
     def cancel(self, context):
         wm = context.window_manager
