@@ -10,4 +10,5 @@ jobs:
       - uses: psf/black@stable
         with:
           options: "--check --verbose --exclude"
+          src: "./src"
           version: "~= 22.0"
