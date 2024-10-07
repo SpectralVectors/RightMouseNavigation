@@ -37,6 +37,13 @@ class RightMouseNavigationPreferences(AddonPreferences):
         default=False,
     )
 
+    return_to_ortho_on_exit: BoolProperty(
+        name="Return to Orthographic on Exit",
+        description="After exiting navigation, this determines if the Viewport "
+        "returns to Orthographic view (if checked) or remains in Perspective view (if unchecked)",
+        default=True,
+    )
+
     enable_for_node_editors: BoolProperty(
         name="Enable for Node Editors",
         description="Right Mouse will pan the view / open the Node Add/Search Menu",
@@ -58,3 +65,8 @@ class RightMouseNavigationPreferences(AddonPreferences):
         box = row.box()
         box.label(text="Node Editor", icon="NODETREE")
         box.prop(self, "enable_for_node_editors")
+        
+        row = layout.row()
+        box = row.box()
+        box.label(text="View", icon="VIEW3D")
+        box.prop(self, "return_to_ortho_on_exit")
