@@ -44,7 +44,7 @@ class RMN_OT_right_mouse_navigation(Operator):
             if bpy.context.region_data.is_perspective:
                 self._ortho = False
             else:
-                self._back_to_ortho = True
+                self._back_to_ortho = addon_prefs.return_to_ortho_on_exit
 
         # The _finished Boolean acts as a flag to exit the modal loop,
         # it is not made True until after the cancel function is called
