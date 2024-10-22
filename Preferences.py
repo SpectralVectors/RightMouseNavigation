@@ -65,7 +65,7 @@ class RightMouseNavigationPreferences(AddonPreferences):
         box = row.box()
         box.label(text="Node Editor", icon="NODETREE")
         box.prop(self, "enable_for_node_editors")
-        
+
         row = layout.row()
         box = row.box()
         box.label(text="View", icon="VIEW3D")
