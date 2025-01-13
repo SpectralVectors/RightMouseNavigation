@@ -102,10 +102,15 @@ class RMN_OT_right_mouse_navigation(Operator):
             if space_type == "NODE_EDITOR":
                 node_tree = context.space_data.node_tree
                 if node_tree:
-                    if node_tree.nodes.active is not None and node_tree.nodes.active.select:
+                    if (
+                        node_tree.nodes.active is not None
+                        and node_tree.nodes.active.select
+                    ):
                         bpy.ops.wm.call_menu(name="NODE_MT_context_menu")
                     else:
-                        bpy.ops.wm.search_single_menu("INVOKE_DEFAULT", menu_idname="NODE_MT_add")
+                        bpy.ops.wm.search_single_menu(
+                            "INVOKE_DEFAULT", menu_idname="NODE_MT_add"
+                        )
             else:
                 try:
                     bpy.ops.wm.call_menu(name=self.menu_by_mode[context.mode])
