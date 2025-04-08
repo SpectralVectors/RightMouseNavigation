@@ -1,6 +1,6 @@
 # RightMouseNavigation
 ### Addon now a Blender Extension, one-click install from within Blender!
-![RightMouseNavigation Logo](/RightMouseNavigationLogo.png)
+![RightMouseNavigation Logo](/RightMouseNavigationLogoV2.png)
 Enables Unreal Engine-style Right Mouse Viewport Navigation and Blueprint-like Node workflow.
 
 Maps Blender's Walk/Fly Navigation to the Right Mouse Button in addition to the standard context menus in the 3D Viewport.
