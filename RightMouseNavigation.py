@@ -131,12 +131,16 @@ class RMN_OT_right_mouse_navigation(Operator):
         # Execute is the first thing called in our operator, so we start by
         # calling Blender's built-in Walk Navigation
         if space_type == "VIEW_3D":
-            bpy.ops.view3d.walk("INVOKE_DEFAULT")
-            # Adding the timer and starting the loop
-            wm = context.window_manager
-            self._timer = wm.event_timer_add(0.1, window=context.window)
-            wm.modal_handler_add(self)
-            return {"RUNNING_MODAL"}
+            try:
+                bpy.ops.view3d.walk("INVOKE_DEFAULT")
+                # Adding the timer and starting the loop
+                wm = context.window_manager
+                self._timer = wm.event_timer_add(0.1, window=context.window)
+                wm.modal_handler_add(self)
+                return {"RUNNING_MODAL"}
+            except RuntimeError:
+                self.report({"ERROR"}, "Cannot Navigate an Object with Constraints")
+                return {"CANCELLED"}
 
         elif space_type == "NODE_EDITOR" and enable_nodes:
             bpy.ops.view2d.pan("INVOKE_DEFAULT")
