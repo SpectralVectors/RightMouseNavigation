@@ -54,19 +54,61 @@ class RightMouseNavigationPreferences(AddonPreferences):
     def draw(self, context):
         layout = self.layout
 
-        box = layout.box()
-        box.label(text="Menu / Movement", icon="DRIVER_DISTANCE")
-        box.prop(self, "time")
-
         row = layout.row()
         box = row.box()
-        box.label(text="Cursor", icon="ORIENTATION_CURSOR")
-        box.prop(self, "reset_cursor_on_exit")
+        box.label(text="Menu / Movement", icon="DRIVER_DISTANCE")
+        box.prop(self, "time")
         box = row.box()
         box.label(text="Node Editor", icon="NODETREE")
         box.prop(self, "enable_for_node_editors")
 
         row = layout.row()
         box = row.box()
+        box.label(text="Cursor", icon="ORIENTATION_CURSOR")
+        box.prop(self, "reset_cursor_on_exit")
+        box = row.box()
         box.label(text="View", icon="VIEW3D")
         box.prop(self, "return_to_ortho_on_exit")
+
+        # Keymap Customization
+        import rna_keymap_ui
+
+        wm = bpy.context.window_manager
+        active_kc = wm.keyconfigs.active
+
+        addon_keymaps = []
+
+        walk_km = active_kc.keymaps["View3D Walk Modal"]
+
+        for key in walk_km.keymap_items:
+            addon_keymaps.append((walk_km, key))
+
+        header, panel = layout.panel(idname="keymap", default_closed=True)
+        header.label(text="Navigation Keymap")
+
+        wm = bpy.context.window_manager
+        kc = wm.keyconfigs.user
+        old_km_name = ""
+        get_kmi_l = []
+        for km_add, kmi_add in addon_keymaps:
+            for km_con in kc.keymaps:
+                if km_add.name == km_con.name:
+                    km = km_con
+                    break
+
+            for kmi_con in km.keymap_items:
+                if kmi_add.idname == kmi_con.idname:
+                    if kmi_add.name == kmi_con.name:
+                        get_kmi_l.append((km, kmi_con))
+
+        get_kmi_l = sorted(set(get_kmi_l), key=get_kmi_l.index)
+
+        if panel:
+            col = panel.column(align=True)
+            for km, kmi in get_kmi_l:
+                if not km.name == old_km_name:
+                    col.label(text=str(km.name), icon="DOT")
+                col.context_pointer_set("keymap", km)
+                rna_keymap_ui.draw_kmi([], kc, km, kmi, col, 0)
+                col.separator()
+                old_km_name = km.name

@@ -21,7 +21,8 @@ def register():
         kmi2 = km2.keymap_items.new("rmn.right_mouse_navigation", "RIGHTMOUSE", "PRESS")
         kmi2.active = False
 
-        addon_keymaps.append((km, kmi, km2, kmi2))
+        addon_keymaps.append((km, kmi))
+        addon_keymaps.append((km2, kmi2))
 
         active_kc = wm.keyconfigs.active
 
