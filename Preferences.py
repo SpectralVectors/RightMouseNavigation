@@ -51,6 +51,12 @@ class RightMouseNavigationPreferences(AddonPreferences):
         update=update_node_keymap,
     )
 
+    disable_camera_navigation: BoolProperty(
+        name="Disable Navigation for Camera View",
+        description="Enable if you only want to navigate your scene, and not affect Camera Transform",
+        default=False,
+    )
+
     def draw(self, context):
         layout = self.layout
 
@@ -69,6 +75,11 @@ class RightMouseNavigationPreferences(AddonPreferences):
         box = row.box()
         box.label(text="View", icon="VIEW3D")
         box.prop(self, "return_to_ortho_on_exit")
+
+        row = layout.row()
+        box = row.box()
+        box.label(text="Camera", icon="CAMERA_DATA")
+        box.prop(self, "disable_camera_navigation")
 
         # Keymap Customization
         import rna_keymap_ui

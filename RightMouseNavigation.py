@@ -102,15 +102,10 @@ class RMN_OT_right_mouse_navigation(Operator):
             if space_type == "NODE_EDITOR":
                 node_tree = context.space_data.node_tree
                 if node_tree:
-                    if (
-                        node_tree.nodes.active is not None
-                        and node_tree.nodes.active.select
-                    ):
+                    if node_tree.nodes.active is not None and node_tree.nodes.active.select:
                         bpy.ops.wm.call_menu(name="NODE_MT_context_menu")
                     else:
-                        bpy.ops.wm.search_single_menu(
-                            "INVOKE_DEFAULT", menu_idname="NODE_MT_add"
-                        )
+                        bpy.ops.wm.search_single_menu("INVOKE_DEFAULT", menu_idname="NODE_MT_add")
             else:
                 try:
                     bpy.ops.wm.call_menu(name=self.menu_by_mode[context.mode])
@@ -130,21 +125,26 @@ class RMN_OT_right_mouse_navigation(Operator):
         preferences = context.preferences
         addon_prefs = preferences.addons[__package__].preferences
         enable_nodes = addon_prefs.enable_for_node_editors
+        disable_camera = addon_prefs.disable_camera_navigation
 
         space_type = context.space_data.type
+        view = context.space_data.region_3d.view_perspective
 
         # Execute is the first thing called in our operator, so we start by
         # calling Blender's built-in Walk Navigation
         if space_type == "VIEW_3D":
-            try:
-                bpy.ops.view3d.walk("INVOKE_DEFAULT")
-                # Adding the timer and starting the loop
-                wm = context.window_manager
-                self._timer = wm.event_timer_add(0.1, window=context.window)
-                wm.modal_handler_add(self)
-                return {"RUNNING_MODAL"}
-            except RuntimeError:
-                self.report({"ERROR"}, "Cannot Navigate an Object with Constraints")
+            if not (view == "CAMERA" and disable_camera):
+                try:
+                    bpy.ops.view3d.walk("INVOKE_DEFAULT")
+                    # Adding the timer and starting the loop
+                    wm = context.window_manager
+                    self._timer = wm.event_timer_add(0.1, window=context.window)
+                    wm.modal_handler_add(self)
+                    return {"RUNNING_MODAL"}
+                except RuntimeError:
+                    self.report({"ERROR"}, "Cannot Navigate an Object with Constraints")
+                    return {"CANCELLED"}
+            else:
                 return {"CANCELLED"}
 
         elif space_type == "NODE_EDITOR" and enable_nodes:
