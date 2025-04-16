@@ -84,6 +84,25 @@ class RightMouseNavigationPreferences(AddonPreferences):
         # Keymap Customization
         import rna_keymap_ui
 
+        nav_names = [
+            "FORWARD",
+            "FORWARD_STOP",
+            "BACKWARD",
+            "BACKWARD_STOP",
+            "LEFT",
+            "LEFT_STOP",
+            "RIGHT",
+            "RIGHT_STOP",
+            "UP",
+            "UP_STOP",
+            "DOWN",
+            "DOWN_STOP",
+            "LOCAL_UP",
+            "LOCAL_UP_STOP",
+            "LOCAL_DOWN",
+            "LOCAL_DOWN_STOP",
+        ]
+
         wm = bpy.context.window_manager
         active_kc = wm.keyconfigs.active
 
@@ -109,7 +128,7 @@ class RightMouseNavigationPreferences(AddonPreferences):
 
             for kmi_con in km.keymap_items:
                 if kmi_add.idname == kmi_con.idname:
-                    if kmi_add.name == kmi_con.name:
+                    if kmi_add.name == kmi_con.name and kmi_con.propvalue in nav_names:
                         get_kmi_l.append((km, kmi_con))
 
         get_kmi_l = sorted(set(get_kmi_l), key=get_kmi_l.index)
