@@ -117,9 +117,12 @@ def unregister():
                 key.type = "LEFTMOUSE"
                 key.value = "PRESS"
 
-        for km in addon_kc.keymaps:
-            for kmi in km.keymap_items:
-                km.keymap_items.remove(kmi)
+        # Remove only the keymap items that this addon registered
+        for km, kmi_orig in addon_keymaps:
+            try:
+                km.keymap_items.remove(kmi_orig)
+            except Exception as e:
+                print(f"[Right Mouse Navigation] Could not remove keymap item {getattr(kmi_orig, 'idname', 'unknown')} from {km.name}: {e}")
         addon_keymaps.clear()
 
 
