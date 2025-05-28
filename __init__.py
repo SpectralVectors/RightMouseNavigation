@@ -122,7 +122,9 @@ def unregister():
             try:
                 km.keymap_items.remove(kmi_orig)
             except Exception as e:
-                print(f"[Right Mouse Navigation] Could not remove keymap item {getattr(kmi_orig, 'idname', 'unknown')} from {km.name}: {e}")
+                print(
+                    f"[Right Mouse Navigation] Could not remove keymap item {getattr(kmi_orig, 'idname', 'unknown')} from {km.name}: {e}"
+                )
         addon_keymaps.clear()
 
 
