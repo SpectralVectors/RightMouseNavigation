@@ -102,15 +102,10 @@ class RMN_OT_right_mouse_navigation(Operator):
             if space_type == "NODE_EDITOR":
                 node_tree = context.space_data.node_tree
                 if node_tree:
-                    if (
-                        node_tree.nodes.active is not None
-                        and node_tree.nodes.active.select
-                    ):
+                    if node_tree.nodes.active is not None and node_tree.nodes.active.select:
                         bpy.ops.wm.call_menu(name="NODE_MT_context_menu")
                     else:
-                        bpy.ops.wm.search_single_menu(
-                            "INVOKE_DEFAULT", menu_idname="NODE_MT_add"
-                        )
+                        bpy.ops.wm.search_single_menu("INVOKE_DEFAULT", menu_idname="NODE_MT_add")
             else:
                 try:
                     bpy.ops.wm.call_menu(name=self.menu_by_mode[context.mode])
@@ -133,11 +128,11 @@ class RMN_OT_right_mouse_navigation(Operator):
         disable_camera = addon_prefs.disable_camera_navigation
 
         space_type = context.space_data.type
-        view = context.space_data.region_3d.view_perspective
 
         # Execute is the first thing called in our operator, so we start by
         # calling Blender's built-in Walk Navigation
         if space_type == "VIEW_3D":
+            view = context.space_data.region_3d.view_perspective
             if not (view == "CAMERA" and disable_camera):
                 try:
                     bpy.ops.view3d.walk("INVOKE_DEFAULT")
@@ -167,3 +162,17 @@ class RMN_OT_right_mouse_navigation(Operator):
     def cancel(self, context):
         wm = context.window_manager
         wm.event_timer_remove(self._timer)
+
+
+class RMN_OT_toggle_cam_navigation(Operator):
+    """Turn Mouse Navigation of Camera On and Off"""
+
+    bl_idname = "rmn.toggle_cam_navigation"
+    bl_label = "Toggle Mouse Camera Navigation"
+    bl_options = {"REGISTER", "UNDO"}
+
+    def execute(self, context):
+        context.preferences.addons[__package__].preferences.disable_camera_navigation = (
+            not context.preferences.addons[__package__].preferences.disable_camera_navigation
+        )
+        return {"FINISHED"}

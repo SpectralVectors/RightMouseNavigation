@@ -6,6 +6,35 @@ from bpy.props import (
 from bpy.types import AddonPreferences
 
 
+def draw_cam_lock(self, context):
+    preferences = context.preferences
+    addon_prefs = preferences.addons[__package__].preferences
+    cam_nav = addon_prefs.disable_camera_navigation
+
+    layout = self.layout
+
+    row = layout.row(align=True)
+    row.alert = cam_nav
+    col = row.column()
+    col.scale_x = 1.3
+    icon = "VIEW_UNLOCKED" if cam_nav else "VIEW_LOCKED"
+    row.operator(text="", operator="rmn.toggle_cam_navigation", icon=icon)
+
+    row = row.row(align=True)
+    row.label(text="", icon="CAMERA_DATA")
+    row.label(text="", icon="MOUSE_MOVE")
+
+
+def cam_lock_update(self, context):
+    preferences = context.preferences
+    addon_prefs = preferences.addons[__package__].preferences
+
+    if addon_prefs.show_cam_lock_ui:
+        bpy.types.VIEW3D_HT_tool_header.prepend(draw_cam_lock)
+    else:
+        bpy.types.VIEW3D_HT_tool_header.remove(draw_cam_lock)
+
+
 def update_node_keymap(self, context):
     wm = context.window_manager
     active_kc = wm.keyconfigs.active
@@ -57,6 +86,13 @@ class RightMouseNavigationPreferences(AddonPreferences):
         default=False,
     )
 
+    show_cam_lock_ui: BoolProperty(
+        name="Show Camera Navigation Lock button",
+        description="Displays the Camera Navigation Lock button in the 3D Viewport",
+        default=False,
+        update=cam_lock_update,
+    )
+
     def draw(self, context):
         layout = self.layout
 
@@ -80,6 +116,7 @@ class RightMouseNavigationPreferences(AddonPreferences):
         box = row.box()
         box.label(text="Camera", icon="CAMERA_DATA")
         box.prop(self, "disable_camera_navigation")
+        box.prop(self, "show_cam_lock_ui")
 
         # Keymap Customization
         import rna_keymap_ui

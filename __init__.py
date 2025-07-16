@@ -1,24 +1,47 @@
-from .Preferences import RightMouseNavigationPreferences
-from .RightMouseNavigation import RMN_OT_right_mouse_navigation
 import bpy
 
+from .operators import (
+    RMN_OT_right_mouse_navigation,
+    RMN_OT_toggle_cam_navigation,
+)
+from .preferences import RightMouseNavigationPreferences
+
 addon_keymaps = []
+classes = [
+    RightMouseNavigationPreferences,
+    RMN_OT_right_mouse_navigation,
+    RMN_OT_toggle_cam_navigation,
+]
 
 
 def register():
     if not bpy.app.background:
-        bpy.utils.register_class(RightMouseNavigationPreferences)
-        bpy.utils.register_class(RMN_OT_right_mouse_navigation)
+        for cls in classes:
+            bpy.utils.register_class(cls)
 
         wm = bpy.context.window_manager
         addon_kc = wm.keyconfigs.addon
 
-        km = addon_kc.keymaps.new(name="3D View", space_type="VIEW_3D")
-        kmi = km.keymap_items.new("rmn.right_mouse_navigation", "RIGHTMOUSE", "PRESS")
+        km = addon_kc.keymaps.new(
+            name="3D View",
+            space_type="VIEW_3D",
+        )
+        kmi = km.keymap_items.new(
+            "rmn.right_mouse_navigation",
+            "RIGHTMOUSE",
+            "PRESS",
+        )
         kmi.active = True
 
-        km2 = addon_kc.keymaps.new(name="Node Editor", space_type="NODE_EDITOR")
-        kmi2 = km2.keymap_items.new("rmn.right_mouse_navigation", "RIGHTMOUSE", "PRESS")
+        km2 = addon_kc.keymaps.new(
+            name="Node Editor",
+            space_type="NODE_EDITOR",
+        )
+        kmi2 = km2.keymap_items.new(
+            "rmn.right_mouse_navigation",
+            "RIGHTMOUSE",
+            "PRESS",
+        )
         kmi2.active = False
 
         addon_keymaps.append((km, kmi))
@@ -36,7 +59,12 @@ def register():
             "Font",
             "Pose",
         ]
-        panelmodes = ["Vertex Paint", "Weight Paint", "Image Paint", "Sculpt"]
+        panelmodes = [
+            "Vertex Paint",
+            "Weight Paint",
+            "Image Paint",
+            "Sculpt",
+        ]
 
         # These Modes all call standard menus
         # "Object Mode", "Mesh", "Curve", "Armature", "Metaball", "Lattice",
@@ -54,11 +82,7 @@ def register():
         # "Vertex Paint", "Weight Paint", "Image Paint", "Sculpt"
         for i in panelmodes:
             for key in active_kc.keymaps[i].keymap_items:
-                if (
-                    key.idname == "wm.call_panel"
-                    and key.type == "RIGHTMOUSE"
-                    and key.active
-                ):
+                if key.idname == "wm.call_panel" and key.type == "RIGHTMOUSE" and key.active:
                     key.active = False
 
         # Changing the Walk Modal Map
@@ -73,8 +97,8 @@ def register():
 
 def unregister():
     if not bpy.app.background:
-        bpy.utils.unregister_class(RMN_OT_right_mouse_navigation)
-        bpy.utils.unregister_class(RightMouseNavigationPreferences)
+        for cls in classes:
+            bpy.utils.unregister_class(cls)
 
         wm = bpy.context.window_manager
         active_kc = wm.keyconfigs.active
@@ -91,7 +115,12 @@ def unregister():
             "Pose",
             "Node Editor",
         ]
-        panelmodes = ["Vertex Paint", "Weight Paint", "Image Paint", "Sculpt"]
+        panelmodes = [
+            "Vertex Paint",
+            "Weight Paint",
+            "Image Paint",
+            "Sculpt",
+        ]
 
         # Reactivating menus
         # "Object Mode", "Mesh", "Curve", "Armature", "Metaball", "Lattice",
