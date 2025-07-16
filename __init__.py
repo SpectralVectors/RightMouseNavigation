@@ -82,7 +82,11 @@ def register():
         # "Vertex Paint", "Weight Paint", "Image Paint", "Sculpt"
         for i in panelmodes:
             for key in active_kc.keymaps[i].keymap_items:
-                if key.idname == "wm.call_panel" and key.type == "RIGHTMOUSE" and key.active:
+                if (
+                    key.idname == "wm.call_panel"
+                    and key.type == "RIGHTMOUSE"
+                    and key.active
+                ):
                     key.active = False
 
         # Changing the Walk Modal Map
