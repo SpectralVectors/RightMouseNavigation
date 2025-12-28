@@ -131,16 +131,20 @@ class RMN_OT_right_mouse_navigation(Operator):
         addon_prefs = preferences.addons[__package__].preferences
         enable_nodes = addon_prefs.enable_for_node_editors
         disable_camera = addon_prefs.disable_camera_navigation
+        navigation_mode = addon_prefs.navigation_mode
 
         space_type = context.space_data.type
 
         # Execute is the first thing called in our operator, so we start by
-        # calling Blender's built-in Walk Navigation
+        # calling the appropriate navigation based on user preference
         if space_type == "VIEW_3D":
             view = context.space_data.region_3d.view_perspective
             if not (view == "CAMERA" and disable_camera):
                 try:
-                    bpy.ops.view3d.walk("INVOKE_DEFAULT")
+                    if navigation_mode == "ORBIT":
+                        bpy.ops.view3d.rotate("INVOKE_DEFAULT")
+                    else:
+                        bpy.ops.view3d.walk("INVOKE_DEFAULT")
                     # Adding the timer and starting the loop
                     wm = context.window_manager
                     self._timer = wm.event_timer_add(0.1, window=context.window)
