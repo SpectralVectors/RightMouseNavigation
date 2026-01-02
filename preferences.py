@@ -1,6 +1,7 @@
 import bpy
 from bpy.props import (
     BoolProperty,
+    EnumProperty,
     FloatProperty,
 )
 from bpy.types import AddonPreferences
@@ -51,6 +52,16 @@ def update_node_keymap(self, context):
 class RightMouseNavigationPreferences(AddonPreferences):
     bl_idname = __package__
 
+    navigation_mode: EnumProperty(
+        name="Navigation Mode",
+        description="Choose how right-click drag navigates the viewport",
+        items=[
+            ("WALK", "Walk", "First-person walk navigation (default Blender behavior)"),
+            ("ORBIT", "Orbit", "Orbit around view center (like middle-mouse-button)"),
+        ],
+        default="WALK",
+    )
+
     time: FloatProperty(
         name="Time Threshold",
         description="How long you have hold right mouse to open menu",
@@ -98,8 +109,13 @@ class RightMouseNavigationPreferences(AddonPreferences):
 
         row = layout.row()
         box = row.box()
+        box.label(text="Navigation", icon="ORIENTATION_GIMBAL")
+        box.prop(self, "navigation_mode")
+        box = row.box()
         box.label(text="Menu / Movement", icon="DRIVER_DISTANCE")
         box.prop(self, "time")
+
+        row = layout.row()
         box = row.box()
         box.label(text="Node Editor", icon="NODETREE")
         box.prop(self, "enable_for_node_editors")
