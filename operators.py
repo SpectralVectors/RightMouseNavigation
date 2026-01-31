@@ -95,22 +95,20 @@ class RMN_OT_right_mouse_navigation(Operator):
             return {"PASS_THROUGH"}
 
     def callMenu(self, context):
-        select_mouse = context.window_manager.keyconfigs.active.preferences.select_mouse
+        wm = context.window_manager
+        blender_keyconfig = wm.keyconfigs["Blender"]
+
+        select_mouse = blender_keyconfig.preferences.select_mouse
         space_type = context.space_data.type
 
         if select_mouse == "LEFT":
             if space_type == "NODE_EDITOR":
                 node_tree = context.space_data.node_tree
                 if node_tree:
-                    if (
-                        node_tree.nodes.active is not None
-                        and node_tree.nodes.active.select
-                    ):
+                    if node_tree.nodes.active is not None and node_tree.nodes.active.select:
                         bpy.ops.wm.call_menu(name="NODE_MT_context_menu")
                     else:
-                        bpy.ops.wm.search_single_menu(
-                            "INVOKE_DEFAULT", menu_idname="NODE_MT_add"
-                        )
+                        bpy.ops.wm.search_single_menu("INVOKE_DEFAULT", menu_idname="NODE_MT_add")
             else:
                 try:
                     bpy.ops.wm.call_menu(name=self.menu_by_mode[context.mode])
@@ -157,6 +155,7 @@ class RMN_OT_right_mouse_navigation(Operator):
                 return {"CANCELLED"}
 
         elif space_type == "NODE_EDITOR" and enable_nodes:
+            print("In the Nodes")
             bpy.ops.view2d.pan("INVOKE_DEFAULT")
             wm = context.window_manager
             # Adding the timer and starting the loop
@@ -181,9 +180,7 @@ class RMN_OT_toggle_cam_navigation(Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context):
-        context.preferences.addons[
-            __package__
-        ].preferences.disable_camera_navigation = not context.preferences.addons[
-            __package__
-        ].preferences.disable_camera_navigation
+        context.preferences.addons[__package__].preferences.disable_camera_navigation = (
+            not context.preferences.addons[__package__].preferences.disable_camera_navigation
+        )
         return {"FINISHED"}

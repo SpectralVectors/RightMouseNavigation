@@ -36,17 +36,32 @@ def cam_lock_update(self, context):
         bpy.types.VIEW3D_HT_tool_header.remove(draw_cam_lock)
 
 
-def update_node_keymap(self, context):
-    wm = context.window_manager
-    active_kc = wm.keyconfigs.active
-    for key in active_kc.keymaps["Node Editor"].keymap_items:
+def node_keymap(keyconfig):
+    for key in keyconfig.keymaps["Node Editor"].keymap_items:
         if key.idname == "wm.call_menu" and key.type == "RIGHTMOUSE":
             key.active = not key.active
 
-    addon_kc = wm.keyconfigs.addon
-    for key in addon_kc.keymaps["Node Editor"].keymap_items:
+
+def update_node_keymap(self, context):
+    wm = context.window_manager
+    active_keyconfig = wm.keyconfigs.active
+    blender_keyconfig = wm.keyconfigs["Blender"]
+    user_keyconfig = wm.keyconfigs["Blender user"]
+
+    try:
+        node_keymap(active_keyconfig)
+    except:
+        node_keymap(blender_keyconfig)
+    finally:
+        node_keymap(user_keyconfig)
+
+    preferences = context.preferences
+    addon_prefs = preferences.addons[__package__].preferences
+    # addon_kc = wm.keyconfigs.addon
+
+    for key in user_keyconfig.keymaps["Node Editor"].keymap_items:
         if key.idname == "rmn.right_mouse_navigation" and key.type == "RIGHTMOUSE":
-            key.active = not key.active
+            key.active = addon_prefs.enable_for_node_editors
 
 
 class RightMouseNavigationPreferences(AddonPreferences):
@@ -110,7 +125,7 @@ class RightMouseNavigationPreferences(AddonPreferences):
         row = layout.row()
         box = row.box()
         box.label(text="Navigation", icon="ORIENTATION_GIMBAL")
-        box.prop(self, "navigation_mode")
+        box.prop(self, "navigation_mode", text="Mode")
         box = row.box()
         box.label(text="Menu / Movement", icon="DRIVER_DISTANCE")
         box.prop(self, "time")
@@ -131,8 +146,9 @@ class RightMouseNavigationPreferences(AddonPreferences):
         row = layout.row()
         box = row.box()
         box.label(text="Camera", icon="CAMERA_DATA")
-        box.prop(self, "disable_camera_navigation")
-        box.prop(self, "show_cam_lock_ui")
+        row = box.row()
+        row.prop(self, "disable_camera_navigation")
+        row.prop(self, "show_cam_lock_ui")
 
         # Keymap Customization
         import rna_keymap_ui
@@ -157,14 +173,24 @@ class RightMouseNavigationPreferences(AddonPreferences):
         ]
 
         wm = bpy.context.window_manager
-        active_kc = wm.keyconfigs.active
+        active_keyconfig = wm.keyconfigs.active
+        blender_keyconfig = wm.keyconfigs["Blender"]
+        user_keyconfig = wm.keyconfigs["Blender user"]
 
         addon_keymaps = []
 
-        walk_km = active_kc.keymaps["View3D Walk Modal"]
+        def walk_keymaps(keyconfig):
+            walk_km = keyconfig.keymaps["View3D Walk Modal"]
 
-        for key in walk_km.keymap_items:
-            addon_keymaps.append((walk_km, key))
+            for key in walk_km.keymap_items:
+                addon_keymaps.append((walk_km, key))
+
+        try:
+            walk_keymaps(active_keyconfig)
+        except:
+            walk_keymaps(blender_keyconfig)
+        finally:
+            walk_keymaps(user_keyconfig)
 
         header, panel = layout.panel(idname="keymap", default_closed=True)
         header.label(text="Navigation Keymap")
