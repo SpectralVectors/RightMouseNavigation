@@ -64,6 +64,11 @@ def update_node_keymap(self, context):
             key.active = addon_prefs.enable_for_node_editors
 
 
+def update_mmb_to_rmb_keymap(self, context):
+    wm = context.window_manager
+    active_kc = wm.keyconfigs.active
+
+    
 class RightMouseNavigationPreferences(AddonPreferences):
     bl_idname = __package__
 
@@ -118,7 +123,15 @@ class RightMouseNavigationPreferences(AddonPreferences):
         default=False,
         update=cam_lock_update,
     )
-
+    
+    rmb_pan_rotate: BoolProperty(
+        name="Switch MMB and RMB Pan/Rotate",
+        description="Switches Pan/Rotate controls to Right Mouse Button. "
+        "Lasso controls are also switched to Middle Mouse Button",
+        default=False,
+        update=update_mmb_to_rmb_keymap,
+    )
+    
     def draw(self, context):
         layout = self.layout
 
@@ -150,6 +163,11 @@ class RightMouseNavigationPreferences(AddonPreferences):
         row.prop(self, "disable_camera_navigation")
         row.prop(self, "show_cam_lock_ui")
 
+        row = layout.row()
+        box = row.box()
+        box.label(text="Right Mouse Button Pan/Rotate", icon="VIEW3D")
+        box.prop(self, "rmb_pan_rotate")
+        
         # Keymap Customization
         import rna_keymap_ui
 
