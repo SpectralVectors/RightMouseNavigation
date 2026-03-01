@@ -255,7 +255,6 @@ class RightMouseNavigationPreferences(AddonPreferences):
                     if (
                         key.idname == "wm.call_menu"
                         and key.type == "RIGHTMOUSE"
-                        and key.active
                     ):
                         key.active = True
                         key.value = "CLICK"
@@ -277,8 +276,11 @@ class RightMouseNavigationPreferences(AddonPreferences):
                     key.alt = True
             for i in menumodes:
                 for key in active_kc.keymaps[i].keymap_items:
-                    if key.idname == "wm.call_menu" and key.type == "RIGHTMOUSE":
-                        key.active = True
+                    if (
+                        key.idname == "wm.call_menu"
+                        and key.type == "RIGHTMOUSE"
+                    ):
+                        key.active = False
                         key.value = "PRESS"
             for i in panelmodes:
                 for key in active_kc.keymaps[i].keymap_items:
