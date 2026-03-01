@@ -98,10 +98,11 @@ def rebind_rmb(scene):
         
 def register():
     bpy.app.handlers.load_post.append(rebind_rmb)
+    
+    for cls in classes:
+        bpy.utils.register_class(cls)
+            
     if not bpy.app.background:
-        for cls in classes:
-            bpy.utils.register_class(cls)
-
         wm = bpy.context.window_manager
         addon_kc = wm.keyconfigs.addon
 
@@ -156,9 +157,15 @@ def register():
 
 def unregister():
     bpy.app.handlers.load_post.remove(rebind_rmb)
+
+    addon_prefs = bpy.context.preferences.addons[__package__].preferences
+    addon_prefs.rebind_switch_nav_rotate(bpy.context, False)
+    addon_prefs.rebind_3dview_keymap(bpy.context, False)
+        
+    for cls in classes:
+        bpy.utils.unregister_class(cls)
+        
     if not bpy.app.background:
-        for cls in classes:
-            bpy.utils.unregister_class(cls)
 
         wm = bpy.context.window_manager
 
@@ -184,10 +191,6 @@ def unregister():
                 panelmodes=panelmodes,
                 keyconfig=user_keyconfig,
             )
-
-        addon_prefs = bpy.context.preferences.addons[__package__].preferences
-        addon_prefs.rebind_switch_nav_rotate(bpy.context, False)
-        addon_prefs.rebind_3dview_keymap(bpy.context, False)
         
         addon_kc = wm.keyconfigs.addon
         # Remove only the keymap items that this addon registered
