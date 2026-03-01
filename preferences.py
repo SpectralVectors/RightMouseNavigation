@@ -135,6 +135,7 @@ class RightMouseNavigationPreferences(AddonPreferences):
     def rebind_mmb_keys(self, context, isActive):
         wm = context.window_manager
         active_kc = wm.keyconfigs.active
+        addon_kc = wm.keyconfigs.addon
         
         menumodes = [
             "Object Mode",
@@ -147,6 +148,84 @@ class RightMouseNavigationPreferences(AddonPreferences):
             "Pose",
         ]
         panelmodes = ["Vertex Paint", "Weight Paint", "Image Paint", "Sculpt"]
+        
+        if (isActive):
+            for key in addon_kc.keymaps["3D View"].keymap_items:
+                if (key.idname == "rmn.right_mouse_navigation"):
+                    key.type = "RIGHTMOUSE"
+                    key.value = "PRESS"
+                    key.alt = True
+            for key in active_kc.keymaps["3D View"].keymap_items:
+                if (key.idname == "view3d.cursor3d" and key.type == "RIGHTMOUSE"):
+                    key.type = "MIDDLEMOUSE"
+                    key.value = "CLICK"
+                    key.shift = True
+                if (key.idname == "view3d.rotate" and key.type == "MIDDLEMOUSE"):
+                    key.type = "RIGHTMOUSE"
+                    key.value = "CLICK_DRAG"
+                if (key.idname == "view3d.move" and key.type == "MIDDLEMOUSE"):
+                    key.type = "RIGHTMOUSE"
+                    key.value = "CLICK_DRAG"
+                    key.shift = True
+                if (key.idname == "view3d.zoom" and key.type == "MIDDLEMOUSE"):
+                    key.type = "RIGHTMOUSE"
+                    key.value = "CLICK_DRAG"
+                    key.ctrl = True
+                if (key.idname == "view3d.dolly" and key.type == "MIDDLEMOUSE"):
+                    key.type = "RIGHTMOUSE"
+                    key.value = "CLICK_DRAG"
+                    key.shift = True
+                    key.ctrl = True
+                if (key.idname == "view3d.select_lasso" and key.type == "RIGHTMOUSE" and key.ctrl == True):
+                    key.type = "MIDDLEMOUSE"
+                    key.value = "CLICK_DRAG"
+                    key.ctrl = True
+                if (key.idname == "view3d.select_lasso" and key.type == "RIGHTMOUSE" and key.ctrl == True and key.shift == True):
+                    key.type = "MIDDLEMOUSE"
+                    key.value = "CLICK_DRAG"
+                    key.shift = True
+                    key.ctrl = True
+                if (key.idname == "transform.translate" and key.type == "RIGHTMOUSE"):
+                    key.type = "MIDDLEMOUSE"
+
+        else:
+            for key in addon_kc.keymaps["3D View"].keymap_items:
+                if (key.idname == "rmn.right_mouse_navigation"):
+                    key.type = "RIGHTMOUSE"
+                    key.value = "PRESS"
+                    key.alt = False
+            for key in active_kc.keymaps["3D View"].keymap_items:
+                if (key.idname == "view3d.cursor3d" and key.type == "MIDDLEMOUSE"):
+                    key.type = "RIGHTMOUSE"
+                    key.value = "CLICK"
+                    key.shift = True
+                if (key.idname == "view3d.rotate" and key.type == "RIGHTMOUSE"):
+                    key.type = "MIDDLEMOUSE"
+                    key.value = "PRESS"
+                if (key.idname == "view3d.move" and key.type == "RIGHTMOUSE"):
+                    key.type = "MIDDLEMOUSE"
+                    key.value = "PRESS"
+                    key.shift = True
+                if (key.idname == "view3d.zoom" and key.type == "RIGHTMOUSE"):
+                    key.type = "MIDDLEMOUSE"
+                    key.value = "PRESS"
+                    key.ctrl = True
+                if (key.idname == "view3d.dolly" and key.type == "RIGHTMOUSE"):
+                    key.type = "MIDDLEMOUSE"
+                    key.value = "PRESS"
+                    key.shift = True
+                    key.ctrl = True
+                if (key.idname == "view3d.select_lasso" and key.type == "MIDDLEMOUSE" and key.ctrl == True):
+                    key.type = "RIGHTMOUSE"
+                    key.value = "CLICK_DRAG"
+                    key.ctrl = True
+                if (key.idname == "view3d.select_lasso" and key.type == "MIDDLEMOUSE" and key.ctrl == True and key.shift == True):
+                    key.type = "RIGHTMOUSE"
+                    key.value = "CLICK_DRAG"
+                    key.shift = True
+                    key.ctrl = True
+                if (key.idname == "transform.translate" and key.type == "MIDDLEMOUSE"):
+                    key.type = "RIGHTMOUSE"
         
         
     def draw(self, context):

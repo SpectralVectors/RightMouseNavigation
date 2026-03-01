@@ -152,6 +152,9 @@ def register():
 
 def unregister():
     if not bpy.app.background:
+        addon_prefs = bpy.context.preferences.addons[__package__].preferences
+        addon_prefs.rebind_mmb_keys(bpy.context, False)
+
         for cls in classes:
             bpy.utils.unregister_class(cls)
 
@@ -190,10 +193,6 @@ def unregister():
                     f"[Right Mouse Navigation] Could not remove keymap item {getattr(kmi_orig, 'idname', 'unknown')} from {km.name}: {e}"
                 )
         addon_keymaps.clear()
-        
-        addon_prefs = bpy.context.preferences.addons[__package__].preferences
-        addon_prefs.rebind_mmb_keys(bpy.context, False)
-
 
 if __name__ == "__main__":
     register()
