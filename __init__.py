@@ -31,18 +31,29 @@ classes = [
 
 
 def register_keymaps(menumodes, panelmodes, keyconfig):
+    addon_prefs = bpy.context.preferences.addons[__package__].preferences
+    isSwapped = addon_prefs.rmb_pan_rotate or addon_prefs.rmb_rotate_switch
+    
     # These Modes all call standard menus
     # "Object Mode", "Mesh", "Curve", "Armature", "Metaball", "Lattice",
     # "Font", "Pose"
     for i in menumodes:
         for key in keyconfig.keymaps[i].keymap_items:
-            if (
-                key.idname == "wm.call_menu"
-                and key.type == "RIGHTMOUSE"
-                and key.active
-            ):
-                key.active = True
-                key.value = "CLICK"
+            if not isSwapped:
+                if (
+                    # key.idname == "wm.call_menu"
+                    key.type == "RIGHTMOUSE"
+                    and key.active
+                ):
+                    key.active = False
+            else:
+                if (
+                    key.idname == "wm.call_menu"
+                    and key.type == "RIGHTMOUSE"
+                    and key.active
+                ):
+                    key.active = True
+                    key.value = "CLICK"
 
     # These Modes call panels instead of menus
     # "Vertex Paint", "Weight Paint", "Image Paint", "Sculpt"
@@ -50,7 +61,8 @@ def register_keymaps(menumodes, panelmodes, keyconfig):
         for key in keyconfig.keymaps[i].keymap_items:
             if key.idname == "wm.call_panel" and key.type == "RIGHTMOUSE" and key.active:
                 key.active = False
-                key.value = "CLICK"
+                if isSwapped:
+                    key.value = "CLICK"
 
     # Changing the Walk Modal Map
     for key in keyconfig.keymaps["View3D Walk Modal"].keymap_items:
@@ -62,7 +74,7 @@ def register_keymaps(menumodes, panelmodes, keyconfig):
             key.value = "RELEASE"
 
 
-def unregister_keymaps(menumodes, panelmodes, keyconfig):
+def unregister_keymaps(menumodes, panelmodes, keyconfig):    
     # Reactivating menus
     # "Object Mode", "Mesh", "Curve", "Armature", "Metaball", "Lattice",
     # "Font", "Pose"
