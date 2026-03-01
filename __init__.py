@@ -5,6 +5,7 @@ from .operators import (
     RMN_OT_toggle_cam_navigation,
 )
 from .preferences import RightMouseNavigationPreferences
+from bpy.app.handlers import persistent
 
 addon_keymaps = []
 menumodes = [
@@ -30,32 +31,18 @@ classes = [
 ]
 
 
-def register_keymaps(menumodes, panelmodes, keyconfig):
-    # These are not present yet on startup?
-    addon_prefs = bpy.context.preferences.addons[__package__].preferences
-    isSwapped = addon_prefs.rmb_rotate_switch
-    
+def register_keymaps(menumodes, panelmodes, keyconfig):    
     # These Modes all call standard menus
     # "Object Mode", "Mesh", "Curve", "Armature", "Metaball", "Lattice",
     # "Font", "Pose"
     for i in menumodes:
         for key in keyconfig.keymaps[i].keymap_items:
-            if not isSwapped:
-                if (
-                    # key.idname == "wm.call_menu"
-                    key.type == "RIGHTMOUSE"
-                    and key.active
-                ):
-                    key.active = False
-                    key.value = "PRESS"
-            else:
-                if (
-                    key.idname == "wm.call_menu"
-                    and key.type == "RIGHTMOUSE"
-                    and key.active
-                ):
-                    key.active = True
-                    key.value = "CLICK"
+            if (
+                # key.idname == "wm.call_menu"
+                key.type == "RIGHTMOUSE"
+                and key.active
+            ):
+                key.active = False
 
     # These Modes call panels instead of menus
     # "Vertex Paint", "Weight Paint", "Image Paint", "Sculpt"
@@ -63,10 +50,6 @@ def register_keymaps(menumodes, panelmodes, keyconfig):
         for key in keyconfig.keymaps[i].keymap_items:
             if key.idname == "wm.call_panel" and key.type == "RIGHTMOUSE" and key.active:
                 key.active = False
-                if isSwapped:
-                    key.value = "CLICK"
-                else:
-                    key.value = "PRESS"
 
     # Changing the Walk Modal Map
     for key in keyconfig.keymaps["View3D Walk Modal"].keymap_items:
@@ -106,7 +89,15 @@ def unregister_keymaps(menumodes, panelmodes, keyconfig):
             key.value = "PRESS"
 
 
+def rebind_rmb(scene):
+    # Preferences can only be checked after register
+    addon_prefs = bpy.context.preferences.addons[__package__].preferences
+    addon_prefs.rebind_3dview_keymap(bpy.context, addon_prefs.rmb_pan_rotate)
+    addon_prefs.rebind_switch_nav_rotate(bpy.context, addon_prefs.rmb_rotate_switch)
+        
+        
 def register():
+    bpy.app.handlers.load_post.append(rebind_rmb)
     if not bpy.app.background:
         for cls in classes:
             bpy.utils.register_class(cls)
@@ -161,13 +152,10 @@ def register():
                 panelmodes=panelmodes,
                 keyconfig=user_keyconfig,
             )
-            
-        addon_prefs = bpy.context.preferences.addons[__package__].preferences
-        addon_prefs.rebind_3dview_keymap(bpy.context, addon_prefs.rmb_pan_rotate)
-        addon_prefs.rebind_switch_nav_rotate(bpy.context, addon_prefs.rmb_rotate_switch)
 
 
 def unregister():
+    bpy.app.handlers.load_post.remove(rebind_rmb)
     if not bpy.app.background:
         for cls in classes:
             bpy.utils.unregister_class(cls)
@@ -211,6 +199,7 @@ def unregister():
                     f"[Right Mouse Navigation] Could not remove keymap item {getattr(kmi_orig, 'idname', 'unknown')} from {km.name}: {e}"
                 )
         addon_keymaps.clear()
-
+        
+        
 if __name__ == "__main__":
     register()

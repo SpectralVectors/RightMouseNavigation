@@ -6,7 +6,6 @@ from bpy.props import (
 )
 from bpy.types import AddonPreferences
 
-
 def draw_cam_lock(self, context):
     preferences = context.preferences
     addon_prefs = preferences.addons[__package__].preferences
@@ -222,6 +221,24 @@ class RightMouseNavigationPreferences(AddonPreferences):
         active_kc = wm.keyconfigs.active
         addon_kc = wm.keyconfigs.addon
         
+        # How to import these from init
+        menumodes = [
+            "Object Mode",
+            "Mesh",
+            "Curve",
+            "Armature",
+            "Metaball",
+            "Lattice",
+            "Font",
+            "Pose",
+        ]
+        panelmodes = [
+            "Vertex Paint",
+            "Weight Paint",
+            "Image Paint",
+            "Sculpt",
+        ]
+
         if (isActive):
             for key in addon_kc.keymaps["3D View"].keymap_items:
                 if (key.idname == "rmn.right_mouse_navigation"):
@@ -233,6 +250,20 @@ class RightMouseNavigationPreferences(AddonPreferences):
                     key.type = "RIGHTMOUSE"
                     key.value = "CLICK_DRAG"
                     key.alt = False
+            for i in menumodes:
+                for key in active_kc.keymaps[i].keymap_items:
+                    if (
+                        key.idname == "wm.call_menu"
+                        and key.type == "RIGHTMOUSE"
+                        and key.active
+                    ):
+                        key.active = True
+                        key.value = "CLICK"
+            for i in panelmodes:
+                for key in active_kc.keymaps[i].keymap_items:
+                    if key.idname == "wm.call_panel" and key.type == "RIGHTMOUSE" and key.active:
+                        key.active = False
+                        key.value = "CLICK"
         else:
             for key in addon_kc.keymaps["3D View"].keymap_items:
                 if (key.idname == "rmn.right_mouse_navigation"):
@@ -244,7 +275,16 @@ class RightMouseNavigationPreferences(AddonPreferences):
                     key.type = "RIGHTMOUSE"
                     key.value = "CLICK_DRAG"
                     key.alt = True
-        
+            for i in menumodes:
+                for key in active_kc.keymaps[i].keymap_items:
+                    if key.idname == "wm.call_menu" and key.type == "RIGHTMOUSE":
+                        key.active = True
+                        key.value = "PRESS"
+            for i in panelmodes:
+                for key in active_kc.keymaps[i].keymap_items:
+                    if key.idname == "wm.call_panel" and key.type == "RIGHTMOUSE":
+                        key.active = True
+                        key.value = "PRESS"
         
     def draw(self, context):
         layout = self.layout
