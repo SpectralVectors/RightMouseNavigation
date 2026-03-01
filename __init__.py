@@ -145,6 +145,9 @@ def register():
                 panelmodes=panelmodes,
                 keyconfig=user_keyconfig,
             )
+            
+        addon_prefs = bpy.context.preferences.addons[__package__].preferences
+        addon_prefs.rebind_mmb_keys(bpy.context, addon_prefs.rmb_pan_rotate)
 
 
 def unregister():
@@ -187,6 +190,9 @@ def unregister():
                     f"[Right Mouse Navigation] Could not remove keymap item {getattr(kmi_orig, 'idname', 'unknown')} from {km.name}: {e}"
                 )
         addon_keymaps.clear()
+        
+        addon_prefs = bpy.context.preferences.addons[__package__].preferences
+        addon_prefs.rebind_mmb_keys(bpy.context, False)
 
 
 if __name__ == "__main__":
