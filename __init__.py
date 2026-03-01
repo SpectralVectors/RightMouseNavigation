@@ -31,8 +31,9 @@ classes = [
 
 
 def register_keymaps(menumodes, panelmodes, keyconfig):
+    # These are not present yet on startup?
     addon_prefs = bpy.context.preferences.addons[__package__].preferences
-    isSwapped = addon_prefs.rmb_pan_rotate or addon_prefs.rmb_rotate_switch
+    isSwapped = addon_prefs.rmb_rotate_switch
     
     # These Modes all call standard menus
     # "Object Mode", "Mesh", "Curve", "Armature", "Metaball", "Lattice",
@@ -46,6 +47,7 @@ def register_keymaps(menumodes, panelmodes, keyconfig):
                     and key.active
                 ):
                     key.active = False
+                    key.value = "PRESS"
             else:
                 if (
                     key.idname == "wm.call_menu"
@@ -63,6 +65,8 @@ def register_keymaps(menumodes, panelmodes, keyconfig):
                 key.active = False
                 if isSwapped:
                     key.value = "CLICK"
+                else:
+                    key.value = "PRESS"
 
     # Changing the Walk Modal Map
     for key in keyconfig.keymaps["View3D Walk Modal"].keymap_items:
@@ -165,10 +169,6 @@ def register():
 
 def unregister():
     if not bpy.app.background:
-        addon_prefs = bpy.context.preferences.addons[__package__].preferences
-        addon_prefs.rebind_switch_nav_rotate(bpy.context, False)
-        addon_prefs.rebind_3dview_keymap(bpy.context, False)
-
         for cls in classes:
             bpy.utils.unregister_class(cls)
 
@@ -197,6 +197,10 @@ def unregister():
                 keyconfig=user_keyconfig,
             )
 
+        addon_prefs = bpy.context.preferences.addons[__package__].preferences
+        addon_prefs.rebind_switch_nav_rotate(bpy.context, False)
+        addon_prefs.rebind_3dview_keymap(bpy.context, False)
+        
         addon_kc = wm.keyconfigs.addon
         # Remove only the keymap items that this addon registered
         for km, kmi_orig in addon_keymaps:
