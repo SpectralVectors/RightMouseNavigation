@@ -147,13 +147,15 @@ def register():
             )
             
         addon_prefs = bpy.context.preferences.addons[__package__].preferences
-        addon_prefs.rebind_mmb_keys(bpy.context, addon_prefs.rmb_pan_rotate)
+        addon_prefs.rebind_3dview_keymap(bpy.context, addon_prefs.rmb_pan_rotate)
+        addon_prefs.rebind_switch_nav_rotate(bpy.context, addon_prefs.rmb_rotate_switch)
 
 
 def unregister():
     if not bpy.app.background:
         addon_prefs = bpy.context.preferences.addons[__package__].preferences
-        addon_prefs.rebind_mmb_keys(bpy.context, False)
+        addon_prefs.rebind_switch_nav_rotate(bpy.context, False)
+        addon_prefs.rebind_3dview_keymap(bpy.context, False)
 
         for cls in classes:
             bpy.utils.unregister_class(cls)
