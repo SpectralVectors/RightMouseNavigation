@@ -128,15 +128,15 @@ class RightMouseNavigationPreferences(AddonPreferences):
     )
     
     rmb_pan_rotate: BoolProperty(
-        name="Switch MMB and RMB Pan/Rotate",
-        description="Switches Pan/Rotate (and more) controls to Right Mouse Button.",
+        name="Switch MMB and RMB Drag Camera Navigation",
+        description="Switches Camera Navigation controls to Right Mouse Button.",
         default=False,
         update=update_rebind_3dview_keymap,
     )
 
     rmb_rotate_switch: BoolProperty(
-        name="Switch RMB Nav and Rotate Alt Modifier",
-        description="Switches RMB Navigation and Pan/Rotate controls Alt modifier.",
+        name="Use Alt to enter Right Mouse Navigation with WASD",
+        description="Switches RMB Navigation and drag Rotation controls with Alt modifier.",
         default=False,
         update=update_rebind_switch_nav_rotate,
     )
@@ -280,10 +280,25 @@ class RightMouseNavigationPreferences(AddonPreferences):
 
         row = layout.row()
         box = row.box()
-        box.label(text="Right Mouse Button Pan/Rotate", icon="VIEW3D")
+        box.label(text="Right Mouse Button Pan, Zoom, and Rotate", icon="VIEW3D")
+        box.label(text="RMB Menus will be set to Click when these options are toggled.")
         box.prop(self, "rmb_pan_rotate")
+        if self.rmb_pan_rotate:
+            box.label(text="Hold RMB then WASD for Navigation Mode")
+            box.label(text="Shift + Drag RMB to Pan 3D View")
+            box.label(text="Ctrl + Drag RMB to Zoom 3D View")
+            box.label(text="Ctrl + Shift + Drag RMB to Dolly Zoom 3D View")
+            box.label(text="Alt + Drag RMB to Rotate 3D View")
+            box.label(text="Other controls swapped")
+            box.label(text="Shift + Click MMB to Set 3D Cursor")
+            box.label(text="Shift + Drag MMB to Transform Translate")
+            box.label(text="Ctrl + Drag MMB to Lasso Selection")
+            box.label(text="Shift + Ctrl + Drag MMB to Lasso Deselection")
         box.prop(self, "rmb_rotate_switch")
-        
+        if self.rmb_rotate_switch:
+            box.label(text="Drag + RMB will now Rotate 3D View")
+            box.label(text="Alt + RMB then WASD for Navigation Mode")
+                                
         # Keymap Customization
         import rna_keymap_ui
 
