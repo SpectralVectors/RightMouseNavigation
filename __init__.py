@@ -92,6 +92,8 @@ def unregister_keymaps(menumodes, panelmodes, keyconfig):
 def rebind_rmb(scene):
     # Preferences can only be checked after register
     addon_prefs = bpy.context.preferences.addons[__package__].preferences
+    addon_prefs.menumodes = menumodes
+    addon_prefs.panelmodes = panelmodes
     addon_prefs.rebind_3dview_keymap(bpy.context, addon_prefs.rmb_pan_rotate)
     addon_prefs.rebind_switch_nav_rotate(bpy.context, addon_prefs.rmb_rotate_switch)
         

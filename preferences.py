@@ -6,6 +6,9 @@ from bpy.props import (
 )
 from bpy.types import AddonPreferences
 
+menumodes = []
+panelmodes = []
+
 def draw_cam_lock(self, context):
     preferences = context.preferences
     addon_prefs = preferences.addons[__package__].preferences
@@ -221,24 +224,6 @@ class RightMouseNavigationPreferences(AddonPreferences):
         active_kc = wm.keyconfigs.active
         addon_kc = wm.keyconfigs.addon
         
-        # How to import these from init
-        menumodes = [
-            "Object Mode",
-            "Mesh",
-            "Curve",
-            "Armature",
-            "Metaball",
-            "Lattice",
-            "Font",
-            "Pose",
-        ]
-        panelmodes = [
-            "Vertex Paint",
-            "Weight Paint",
-            "Image Paint",
-            "Sculpt",
-        ]
-
         if (isActive):
             for key in addon_kc.keymaps["3D View"].keymap_items:
                 if (key.idname == "rmn.right_mouse_navigation"):
