@@ -8,6 +8,7 @@ from .preferences import RightMouseNavigationPreferences
 from bpy.app.handlers import persistent
 
 addon_keymaps = []
+# These Modes all call standard menus
 menumodes = [
     "Object Mode",
     "Mesh",
@@ -18,6 +19,7 @@ menumodes = [
     "Font",
     "Pose",
 ]
+# These Modes call panels instead of menus
 panelmodes = [
     "Vertex Paint",
     "Weight Paint",
@@ -32,9 +34,7 @@ classes = [
 
 
 def register_keymaps(menumodes, panelmodes, keyconfig):
-    # These Modes all call standard menus
-    # "Object Mode", "Mesh", "Curve", "Armature", "Metaball", "Lattice",
-    # "Font", "Pose"
+    # Deactivating menus
     for i in menumodes:
         for key in keyconfig.keymaps[i].keymap_items:
             if (
@@ -44,15 +44,10 @@ def register_keymaps(menumodes, panelmodes, keyconfig):
             ):
                 key.active = False
 
-    # These Modes call panels instead of menus
-    # "Vertex Paint", "Weight Paint", "Image Paint", "Sculpt"
+    # Deactivating panels
     for i in panelmodes:
         for key in keyconfig.keymaps[i].keymap_items:
-            if (
-                key.idname == "wm.call_panel"
-                and key.type == "RIGHTMOUSE"
-                and key.active
-            ):
+            if key.idname == "wm.call_panel" and key.type == "RIGHTMOUSE" and key.active:
                 key.active = False
 
     # Changing the Walk Modal Map
@@ -67,8 +62,6 @@ def register_keymaps(menumodes, panelmodes, keyconfig):
 
 def unregister_keymaps(menumodes, panelmodes, keyconfig):
     # Reactivating menus
-    # "Object Mode", "Mesh", "Curve", "Armature", "Metaball", "Lattice",
-    # "Font", "Pose"
     for i in menumodes:
         for key in keyconfig.keymaps[i].keymap_items:
             if key.idname == "wm.call_menu" and key.type == "RIGHTMOUSE":
@@ -76,7 +69,6 @@ def unregister_keymaps(menumodes, panelmodes, keyconfig):
                 key.value = "PRESS"
 
     # Reactivating panels
-    # "Vertex Paint", "Weight Paint", "Image Paint", "Sculpt"
     for i in panelmodes:
         for key in keyconfig.keymaps[i].keymap_items:
             if key.idname == "wm.call_panel" and key.type == "RIGHTMOUSE":
@@ -147,13 +139,13 @@ def register():
                 panelmodes=panelmodes,
                 keyconfig=active_keyconfig,
             )
-        except:
+        except KeyError:
             register_keymaps(
                 menumodes=menumodes,
                 panelmodes=panelmodes,
                 keyconfig=blender_keyconfig,
             )
-        finally:
+        except KeyError:
             register_keymaps(
                 menumodes=menumodes,
                 panelmodes=panelmodes,
@@ -184,13 +176,13 @@ def unregister():
                 panelmodes=panelmodes,
                 keyconfig=active_keyconfig,
             )
-        except:
+        except KeyError:
             unregister_keymaps(
                 menumodes=menumodes,
                 panelmodes=panelmodes,
                 keyconfig=blender_keyconfig,
             )
-        finally:
+        except KeyError:
             unregister_keymaps(
                 menumodes=menumodes,
                 panelmodes=panelmodes,

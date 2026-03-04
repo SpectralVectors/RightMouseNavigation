@@ -82,8 +82,16 @@ class RightMouseNavigationPreferences(AddonPreferences):
         name="Navigation Mode",
         description="Choose how right-click drag navigates the viewport",
         items=[
-            ("WALK", "Walk", "First-person walk navigation (default Blender behavior)"),
-            ("ORBIT", "Orbit", "Orbit around view center (like middle-mouse-button)"),
+            (
+                "WALK",
+                "Walk",
+                "First-person walk navigation (default Blender behavior)",
+            ),
+            (
+                "ORBIT",
+                "Orbit",
+                "Orbit around view center (like middle-mouse-button)",
+            ),
         ],
         default="WALK",
     )
@@ -132,7 +140,7 @@ class RightMouseNavigationPreferences(AddonPreferences):
 
     rmb_pan_rotate: BoolProperty(
         name="Switch MMB and RMB Drag Camera Navigation",
-        description="Switches Camera Navigation controls to Right Mouse Button.",
+        description="Switches Camera Navigation controls to Right Mouse Button. Context Menus will be set to Click when these options are toggled.",
         default=False,
         update=update_rebind_3dview_keymap,
     )
@@ -259,11 +267,7 @@ class RightMouseNavigationPreferences(AddonPreferences):
                         key.value = "CLICK"
             for i in panelmodes:
                 for key in active_kc.keymaps[i].keymap_items:
-                    if (
-                        key.idname == "wm.call_panel"
-                        and key.type == "RIGHTMOUSE"
-                        and key.active
-                    ):
+                    if key.idname == "wm.call_panel" and key.type == "RIGHTMOUSE" and key.active:
                         key.active = False
                         key.value = "CLICK"
         else:
@@ -291,19 +295,16 @@ class RightMouseNavigationPreferences(AddonPreferences):
     def draw(self, context):
         layout = self.layout
 
+        # Navigation Mode & Menu / Movement Boxes
         row = layout.row()
         box = row.box()
-        box.label(text="Navigation", icon="ORIENTATION_GIMBAL")
-        box.prop(self, "navigation_mode", text="Mode")
+        box.label(text="Navigation Mode", icon="ORIENTATION_GIMBAL")
+        box.prop(self, "navigation_mode", text="")
         box = row.box()
         box.label(text="Menu / Movement", icon="DRIVER_DISTANCE")
         box.prop(self, "time")
 
-        row = layout.row()
-        box = row.box()
-        box.label(text="Node Editor", icon="NODETREE")
-        box.prop(self, "enable_for_node_editors")
-
+        # Cursor & View Boxes
         row = layout.row()
         box = row.box()
         box.label(text="Cursor", icon="ORIENTATION_CURSOR")
@@ -312,6 +313,7 @@ class RightMouseNavigationPreferences(AddonPreferences):
         box.label(text="View", icon="VIEW3D")
         box.prop(self, "return_to_ortho_on_exit")
 
+        # Camera Box
         row = layout.row()
         box = row.box()
         box.label(text="Camera", icon="CAMERA_DATA")
@@ -319,30 +321,150 @@ class RightMouseNavigationPreferences(AddonPreferences):
         row.prop(self, "disable_camera_navigation")
         row.prop(self, "show_cam_lock_ui")
 
+        # Node Editor Box
         row = layout.row()
         box = row.box()
-        box.label(text="Right Mouse Button Pan, Zoom, and Rotate", icon="VIEW3D")
-        box.label(text="RMB Menus will be set to Click when these options are toggled.")
-        box.prop(self, "rmb_pan_rotate")
-        if self.rmb_pan_rotate:
-            if not self.rmb_rotate_switch:
-                box.label(text="Hold RMB then WASD for Navigation Mode")
-                box.label(text="Alt + Drag RMB to Rotate 3D View")
-            box.label(text="Shift + Drag RMB to Pan 3D View")
-            box.label(text="Ctrl + Drag RMB to Zoom 3D View")
-            box.label(text="Ctrl + Shift + Drag RMB to Dolly Zoom 3D View")
-            box.label(text="Other controls swapped")
-            box.label(text="Shift + Click MMB to Set 3D Cursor")
-            box.label(text="Shift + Drag MMB to Transform Translate")
-            box.label(text="Ctrl + Drag MMB to Lasso Selection")
-            box.label(text="Shift + Ctrl + Drag MMB to Lasso Deselection")
-        if self.rmb_pan_rotate:
-            box.prop(self, "rmb_rotate_switch")
+        box.label(text="Node Editor", icon="NODETREE")
+        box.prop(self, "enable_for_node_editors")
+
+        # RMB MMB Box
+        box = layout.box()
+
+        header, panel = box.panel(idname="panzoom", default_closed=True)
+        header.label(text="Pan, Zoom, Rotate", icon="VIEW3D")
+
+        if panel:
+            row = panel.row()
+            row.prop(self, "rmb_pan_rotate", text="Swap MMB & RMB Navigation Controls")
+            row.prop(self, "rmb_rotate_switch", text="Require Alt for Walk/Fly Navigation")
+
+            # Split the layout at 30%
+            split = panel.split(factor=0.3)
+            split.active = self.rmb_pan_rotate
+
+            # One side of split for titles
+            title = split.column()
+            title.alignment = "RIGHT"
+
+            row = title.row()
+            row.alignment = "LEFT"
+            row.label(text="Right Mouse", icon="MOUSE_RMB")
+
+            # RMB
+            title.label(text="Navigation Mode:")
+            title.label(text="Rotate 3D View:")
+            title.label(text="Pan 3D View:")
+            title.label(text="Zoom 3D View:")
+            title.label(text="Dolly Zoom 3D View:")
+
+            row = title.row()
+            row.alignment = "LEFT"
+            row.label(text="Middle Mouse", icon="MOUSE_MMB")
+
+            # MMB
+            title.label(text="Set 3D Cursor:")
+            title.label(text="Transform Translate:")
+            title.label(text="Lasso Selection:")
+            title.label(text="Lasso Deselection:")
+
+            # The other side of the split holds content
+            content = split.column()
+
+            row = content.row()
+            row.label(text="")
+
+            # RMB
+            row = content.row(align=True)
+            row.label(text="", icon="EVENT_W")
+            row.label(text="", icon="EVENT_A")
+            row.label(text="", icon="EVENT_S")
+            row.label(text="", icon="EVENT_D")
+            row.label(text="", icon="ADD")
             if self.rmb_rotate_switch:
-                box.label(text="Drag + RMB will now Rotate 3D View")
-                box.label(text="Alt + RMB then WASD for Navigation Mode")
-        elif not self.rmb_pan_rotate and self.rmb_rotate_switch:
-            self.rmb_rotate_switch = False
+                row.label(text="", icon="EVENT_ALT")
+                row.label(text="", icon="ADD")
+            row.label(text="", icon="MOUSE_RMB_DRAG")
+            label = row.row()
+            label.active = False
+            text = (
+                "(WASD + Right Mouse)"
+                if not self.rmb_rotate_switch
+                else "(WASD + Alt + Right Mouse)"
+            )
+            label.label(text=text)
+
+            row = content.row(align=True)
+            if not self.rmb_rotate_switch:
+                row.label(text="", icon="EVENT_ALT")
+                row.label(text="", icon="ADD")
+            row.label(text="", icon="MOUSE_RMB_DRAG")
+            label = row.row()
+            label.active = False
+            text = "(Alt + Right Mouse)" if not self.rmb_rotate_switch else "(Right Mouse)"
+            label.label(text=text)
+
+            row = content.row(align=True)
+            row.label(text="", icon="EVENT_SHIFT")
+            row.label(text="", icon="ADD")
+            row.label(text="", icon="MOUSE_RMB_DRAG")
+            label = row.row()
+            label.active = False
+            label.label(text="(Shift + Right Mouse)")
+
+            row = content.row(align=True)
+            row.label(text="", icon="EVENT_CTRL")
+            row.label(text="", icon="ADD")
+            row.label(text="", icon="MOUSE_RMB_DRAG")
+            label = row.row()
+            label.active = False
+            label.label(text="(Ctrl + Right Mouse)")
+
+            row = content.row(align=True)
+            row.label(text="", icon="EVENT_CTRL")
+            row.label(text="", icon="ADD")
+            row.label(text="", icon="EVENT_SHIFT")
+            row.label(text="", icon="ADD")
+            row.label(text="", icon="MOUSE_RMB_DRAG")
+            label = row.row()
+            label.active = False
+            label.label(text="(Ctrl + Shift + Right Mouse)")
+
+            row = content.row()
+            row.label(text="")
+            # MMB
+            row = content.row(align=True)
+            row.label(text="", icon="EVENT_SHIFT")
+            row.label(text="", icon="ADD")
+            row.label(text="", icon="MOUSE_MMB")
+            label = row.row()
+            label.active = False
+            label.label(text="(Shift + Middle Mouse)")
+
+            row = content.row(align=True)
+            row.label(text="", icon="EVENT_SHIFT")
+            row.label(text="", icon="ADD")
+            row.label(text="", icon="MOUSE_MMB_DRAG")
+            label = row.row()
+            label.active = False
+            label.label(text="(Shift + Middle Mouse)")
+
+            row = content.row(align=True)
+            row.label(text="", icon="EVENT_CTRL")
+            row.label(text="", icon="ADD")
+            row.label(text="", icon="MOUSE_MMB_DRAG")
+            label = row.row()
+            label.active = False
+            label.label(text="(Ctrl + Middle Mouse)")
+
+            row = content.row(align=True)
+            row.label(text="", icon="EVENT_SHIFT")
+            row.label(text="", icon="ADD")
+            row.label(text="", icon="EVENT_CTRL")
+            row.label(text="", icon="ADD")
+            row.label(text="", icon="MOUSE_MMB_DRAG")
+            label = row.row()
+            label.active = False
+            label.label(text="(Shift + Ctrl + Right Mouse)")
 
         # Keymap Customization
         import rna_keymap_ui
@@ -386,6 +508,7 @@ class RightMouseNavigationPreferences(AddonPreferences):
         finally:
             walk_keymaps(user_keyconfig)
 
+        # Navigation Keymap Box
         header, panel = layout.panel(idname="keymap", default_closed=True)
         header.label(text="Navigation Keymap")
 
