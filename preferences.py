@@ -267,7 +267,11 @@ class RightMouseNavigationPreferences(AddonPreferences):
                         key.value = "CLICK"
             for i in panelmodes:
                 for key in active_kc.keymaps[i].keymap_items:
-                    if key.idname == "wm.call_panel" and key.type == "RIGHTMOUSE" and key.active:
+                    if (
+                        key.idname == "wm.call_panel"
+                        and key.type == "RIGHTMOUSE"
+                        and key.active
+                    ):
                         key.active = False
                         key.value = "CLICK"
         else:
@@ -336,7 +340,9 @@ class RightMouseNavigationPreferences(AddonPreferences):
         if panel:
             row = panel.row()
             row.prop(self, "rmb_pan_rotate", text="Swap MMB & RMB Navigation Controls")
-            row.prop(self, "rmb_rotate_switch", text="Require Alt for Walk/Fly Navigation")
+            row.prop(
+                self, "rmb_rotate_switch", text="Require Alt for Walk/Fly Navigation"
+            )
 
             # Split the layout at 30%
             split = panel.split(factor=0.3)
@@ -400,7 +406,9 @@ class RightMouseNavigationPreferences(AddonPreferences):
             row.label(text="", icon="MOUSE_RMB_DRAG")
             label = row.row()
             label.active = False
-            text = "(Alt + Right Mouse)" if not self.rmb_rotate_switch else "(Right Mouse)"
+            text = (
+                "(Alt + Right Mouse)" if not self.rmb_rotate_switch else "(Right Mouse)"
+            )
             label.label(text=text)
 
             row = content.row(align=True)

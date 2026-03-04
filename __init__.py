@@ -47,7 +47,11 @@ def register_keymaps(menumodes, panelmodes, keyconfig):
     # Deactivating panels
     for i in panelmodes:
         for key in keyconfig.keymaps[i].keymap_items:
-            if key.idname == "wm.call_panel" and key.type == "RIGHTMOUSE" and key.active:
+            if (
+                key.idname == "wm.call_panel"
+                and key.type == "RIGHTMOUSE"
+                and key.active
+            ):
                 key.active = False
 
     # Changing the Walk Modal Map
