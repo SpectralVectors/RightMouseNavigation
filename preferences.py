@@ -6,6 +6,8 @@ from bpy.props import (
 )
 from bpy.types import AddonPreferences
 
+menumodes = []
+panelmodes = []
 
 def draw_cam_lock(self, context):
     preferences = context.preferences
@@ -64,6 +66,14 @@ def update_node_keymap(self, context):
             key.active = addon_prefs.enable_for_node_editors
 
 
+def update_rebind_3dview_keymap(self, context):
+    self.rebind_3dview_keymap(context, self.rmb_pan_rotate)
+
+
+def update_rebind_switch_nav_rotate(self, context):
+    self.rebind_switch_nav_rotate(context, self.rmb_rotate_switch)
+
+    
 class RightMouseNavigationPreferences(AddonPreferences):
     bl_idname = __package__
 
@@ -118,7 +128,151 @@ class RightMouseNavigationPreferences(AddonPreferences):
         default=False,
         update=cam_lock_update,
     )
+    
+    rmb_pan_rotate: BoolProperty(
+        name="Switch MMB and RMB Drag Camera Navigation",
+        description="Switches Camera Navigation controls to Right Mouse Button.",
+        default=False,
+        update=update_rebind_3dview_keymap,
+    )
 
+    rmb_rotate_switch: BoolProperty(
+        name="Use Alt to enter Right Mouse Navigation with WASD",
+        description="Switches RMB Navigation and drag Rotation controls with Alt modifier.",
+        default=False,
+        update=update_rebind_switch_nav_rotate,
+    )
+    
+    
+    def rebind_3dview_keymap(self, context, isActive):
+        wm = context.window_manager
+        active_kc = wm.keyconfigs.active
+        addon_kc = wm.keyconfigs.addon
+        
+        if (isActive):
+            for key in active_kc.keymaps["3D View"].keymap_items:
+                if (key.idname == "view3d.cursor3d" and key.type == "RIGHTMOUSE"):
+                    key.type = "MIDDLEMOUSE"
+                    key.value = "CLICK"
+                    key.shift = True
+                if (key.idname == "view3d.rotate" and key.type == "MIDDLEMOUSE"):
+                    key.type = "RIGHTMOUSE"
+                    key.value = "CLICK_DRAG"
+                    key.alt = True
+                if (key.idname == "view3d.move" and key.type == "MIDDLEMOUSE"):
+                    key.type = "RIGHTMOUSE"
+                    key.value = "CLICK_DRAG"
+                    key.shift = True
+                if (key.idname == "view3d.zoom" and key.type == "MIDDLEMOUSE"):
+                    key.type = "RIGHTMOUSE"
+                    key.value = "CLICK_DRAG"
+                    key.ctrl = True
+                if (key.idname == "view3d.dolly" and key.type == "MIDDLEMOUSE"):
+                    key.type = "RIGHTMOUSE"
+                    key.value = "CLICK_DRAG"
+                    key.shift = True
+                    key.ctrl = True
+                if (key.idname == "view3d.select_lasso" and key.type == "RIGHTMOUSE" and key.ctrl == True):
+                    key.type = "MIDDLEMOUSE"
+                    key.value = "CLICK_DRAG"
+                    key.ctrl = True
+                if (key.idname == "view3d.select_lasso" and key.type == "RIGHTMOUSE" and key.ctrl == True and key.shift == True):
+                    key.type = "MIDDLEMOUSE"
+                    key.value = "CLICK_DRAG"
+                    key.shift = True
+                    key.ctrl = True
+                if (key.idname == "transform.translate" and key.type == "RIGHTMOUSE"):
+                    key.type = "MIDDLEMOUSE"
+        else:
+            for key in active_kc.keymaps["3D View"].keymap_items:
+                if (key.idname == "view3d.cursor3d" and key.type == "MIDDLEMOUSE"):
+                    key.type = "RIGHTMOUSE"
+                    key.value = "CLICK"
+                    key.shift = True
+                if (key.idname == "view3d.rotate" and key.type == "RIGHTMOUSE"):
+                    key.type = "MIDDLEMOUSE"
+                    key.value = "PRESS"
+                    key.alt = False
+                if (key.idname == "view3d.move" and key.type == "RIGHTMOUSE"):
+                    key.type = "MIDDLEMOUSE"
+                    key.value = "PRESS"
+                    key.shift = True
+                if (key.idname == "view3d.zoom" and key.type == "RIGHTMOUSE"):
+                    key.type = "MIDDLEMOUSE"
+                    key.value = "PRESS"
+                    key.ctrl = True
+                if (key.idname == "view3d.dolly" and key.type == "RIGHTMOUSE"):
+                    key.type = "MIDDLEMOUSE"
+                    key.value = "PRESS"
+                    key.shift = True
+                    key.ctrl = True
+                if (key.idname == "view3d.select_lasso" and key.type == "MIDDLEMOUSE" and key.ctrl == True):
+                    key.type = "RIGHTMOUSE"
+                    key.value = "CLICK_DRAG"
+                    key.ctrl = True
+                if (key.idname == "view3d.select_lasso" and key.type == "MIDDLEMOUSE" and key.ctrl == True and key.shift == True):
+                    key.type = "RIGHTMOUSE"
+                    key.value = "CLICK_DRAG"
+                    key.shift = True
+                    key.ctrl = True
+                if (key.idname == "transform.translate" and key.type == "MIDDLEMOUSE"):
+                    key.type = "RIGHTMOUSE"
+
+
+    def rebind_switch_nav_rotate(self, context, isActive):
+        wm = context.window_manager
+        active_kc = wm.keyconfigs.active
+        addon_kc = wm.keyconfigs.addon
+        
+        if (isActive):
+            for key in addon_kc.keymaps["3D View"].keymap_items:
+                if (key.idname == "rmn.right_mouse_navigation"):
+                    key.type = "RIGHTMOUSE"
+                    key.value = "PRESS"
+                    key.alt = True
+            for key in active_kc.keymaps["3D View"].keymap_items:
+                if (key.idname == "view3d.rotate" and key.type == "RIGHTMOUSE"):
+                    key.type = "RIGHTMOUSE"
+                    key.value = "CLICK_DRAG"
+                    key.alt = False
+            for i in menumodes:
+                for key in active_kc.keymaps[i].keymap_items:
+                    if (
+                        key.idname == "wm.call_menu"
+                        and key.type == "RIGHTMOUSE"
+                    ):
+                        key.active = True
+                        key.value = "CLICK"
+            for i in panelmodes:
+                for key in active_kc.keymaps[i].keymap_items:
+                    if key.idname == "wm.call_panel" and key.type == "RIGHTMOUSE" and key.active:
+                        key.active = False
+                        key.value = "CLICK"
+        else:
+            for key in addon_kc.keymaps["3D View"].keymap_items:
+                if (key.idname == "rmn.right_mouse_navigation"):
+                    key.type = "RIGHTMOUSE"
+                    key.value = "PRESS"
+                    key.alt = False
+            for key in active_kc.keymaps["3D View"].keymap_items:
+                if (key.idname == "view3d.rotate" and key.type == "RIGHTMOUSE"):
+                    key.type = "RIGHTMOUSE"
+                    key.value = "CLICK_DRAG"
+                    key.alt = True
+            for i in menumodes:
+                for key in active_kc.keymaps[i].keymap_items:
+                    if (
+                        key.idname == "wm.call_menu"
+                        and key.type == "RIGHTMOUSE"
+                    ):
+                        key.active = False
+                        key.value = "PRESS"
+            for i in panelmodes:
+                for key in active_kc.keymaps[i].keymap_items:
+                    if key.idname == "wm.call_panel" and key.type == "RIGHTMOUSE":
+                        key.active = True
+                        key.value = "PRESS"
+        
     def draw(self, context):
         layout = self.layout
 
@@ -150,6 +304,31 @@ class RightMouseNavigationPreferences(AddonPreferences):
         row.prop(self, "disable_camera_navigation")
         row.prop(self, "show_cam_lock_ui")
 
+        row = layout.row()
+        box = row.box()
+        box.label(text="Right Mouse Button Pan, Zoom, and Rotate", icon="VIEW3D")
+        box.label(text="RMB Menus will be set to Click when these options are toggled.")
+        box.prop(self, "rmb_pan_rotate")
+        if self.rmb_pan_rotate:
+            if not self.rmb_rotate_switch:
+                box.label(text="Hold RMB then WASD for Navigation Mode")
+                box.label(text="Alt + Drag RMB to Rotate 3D View")
+            box.label(text="Shift + Drag RMB to Pan 3D View")
+            box.label(text="Ctrl + Drag RMB to Zoom 3D View")
+            box.label(text="Ctrl + Shift + Drag RMB to Dolly Zoom 3D View")
+            box.label(text="Other controls swapped")
+            box.label(text="Shift + Click MMB to Set 3D Cursor")
+            box.label(text="Shift + Drag MMB to Transform Translate")
+            box.label(text="Ctrl + Drag MMB to Lasso Selection")
+            box.label(text="Shift + Ctrl + Drag MMB to Lasso Deselection")
+        if (self.rmb_pan_rotate):
+            box.prop(self, "rmb_rotate_switch")
+            if self.rmb_rotate_switch:
+                box.label(text="Drag + RMB will now Rotate 3D View")
+                box.label(text="Alt + RMB then WASD for Navigation Mode")
+        elif (not self.rmb_pan_rotate and self.rmb_rotate_switch):
+            self.rmb_rotate_switch = False
+                                
         # Keymap Customization
         import rna_keymap_ui
 
