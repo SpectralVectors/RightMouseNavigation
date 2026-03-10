@@ -171,8 +171,24 @@ def unregister():
     bpy.app.handlers.load_post.remove(rebind_rmb)
 
     addon_prefs = bpy.context.preferences.addons[__package__].preferences
-    addon_prefs.rebind_switch_nav_rotate(bpy.context, False)
-    addon_prefs.rebind_3dview_keymap(bpy.context, False)
+    addon_prefs.menumodes = menumodes
+    addon_prefs.panelmodes = panelmodes
+
+    wm = bpy.context.window_manager
+    active_keyconfig = wm.keyconfigs.active
+    addon_keyconfig = wm.keyconfigs.addon
+    blender_keyconfig = wm.keyconfigs["Blender"]
+    user_keyconfig = wm.keyconfigs["Blender user"]
+
+    try:
+        addon_prefs.rebind_3dview_keymap(active_keyconfig, False)
+        addon_prefs.rebind_switch_nav_rotate(active_keyconfig, addon_keyconfig, False)
+    except KeyError:
+        addon_prefs.rebind_3dview_keymap(blender_keyconfig, False)
+        addon_prefs.rebind_switch_nav_rotate(blender_keyconfig, addon_keyconfig, False)
+    except KeyError:
+        addon_prefs.rebind_3dview_keymap(user_keyconfig, False)
+        addon_prefs.rebind_switch_nav_rotate(user_keyconfig, addon_keyconfig, False)
 
     for cls in classes:
         bpy.utils.unregister_class(cls)
