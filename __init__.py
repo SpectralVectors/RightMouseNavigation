@@ -90,8 +90,22 @@ def rebind_rmb(scene):
     addon_prefs = bpy.context.preferences.addons[__package__].preferences
     addon_prefs.menumodes = menumodes
     addon_prefs.panelmodes = panelmodes
-    addon_prefs.rebind_3dview_keymap(bpy.context, addon_prefs.rmb_pan_rotate)
-    addon_prefs.rebind_switch_nav_rotate(bpy.context, addon_prefs.rmb_rotate_switch)
+
+    wm = bpy.context.window_manager
+    active_keyconfig = wm.keyconfigs.active
+    addon_keyconfig = wm.keyconfigs.addon
+    blender_keyconfig = wm.keyconfigs["Blender"]
+    user_keyconfig = wm.keyconfigs["Blender user"]
+
+    try:
+        addon_prefs.rebind_3dview_keymap(active_keyconfig, addon_prefs.rmb_pan_rotate)
+        addon_prefs.rebind_switch_nav_rotate(active_keyconfig, addon_keyconfig, addon_prefs.rmb_rotate_switch)
+    except KeyError:
+        addon_prefs.rebind_3dview_keymap(blender_keyconfig, addon_prefs.rmb_pan_rotate)
+        addon_prefs.rebind_switch_nav_rotate(blender_keyconfig, addon_keyconfig, addon_prefs.rmb_rotate_switch)
+    except KeyError:
+        addon_prefs.rebind_3dview_keymap(user_keyconfig, addon_prefs.rmb_pan_rotate)
+        addon_prefs.rebind_switch_nav_rotate(user_keyconfig, addon_keyconfig, addon_prefs.rmb_rotate_switch)
 
 
 def register():
