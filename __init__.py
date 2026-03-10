@@ -33,7 +33,7 @@ classes = [
 ]
 
 
-def register_keymaps(menumodes, panelmodes, keyconfig):
+def register_keymaps(menumodes, panelmodes, keyconfig):    
     # Deactivating menus
     for i in menumodes:
         for key in keyconfig.keymaps[i].keymap_items:
@@ -90,7 +90,7 @@ def rebind_rmb(scene):
     addon_prefs = bpy.context.preferences.addons[__package__].preferences
     addon_prefs.menumodes = menumodes
     addon_prefs.panelmodes = panelmodes
-
+    
     wm = bpy.context.window_manager
     active_keyconfig = wm.keyconfigs.active
     addon_keyconfig = wm.keyconfigs.addon

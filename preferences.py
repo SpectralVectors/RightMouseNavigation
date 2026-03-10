@@ -261,7 +261,7 @@ class RightMouseNavigationPreferences(AddonPreferences):
                 if key.idname == "transform.translate" and key.type == "MIDDLEMOUSE":
                     key.type = "RIGHTMOUSE"
 
-    def rebind_switch_nav_rotate(self, keyconfig, addon_kc, isActive):
+    def rebind_switch_nav_rotate(self, keyconfig, addon_kc, isActive):        
         if isActive:
             for key in addon_kc.keymaps["3D View"].keymap_items:
                 if key.idname == "rmn.right_mouse_navigation":
@@ -273,15 +273,15 @@ class RightMouseNavigationPreferences(AddonPreferences):
                     key.type = "RIGHTMOUSE"
                     key.value = "CLICK_DRAG"
                     key.alt = False
-            for i in menumodes:
+            for i in self.menumodes:
                 for key in keyconfig.keymaps[i].keymap_items:
                     if key.idname == "wm.call_menu" and key.type == "RIGHTMOUSE":
                         key.active = True
                         key.value = "CLICK"
-            for i in panelmodes:
+            for i in self.panelmodes:
                 for key in keyconfig.keymaps[i].keymap_items:
-                    if key.idname == "wm.call_panel" and key.type == "RIGHTMOUSE" and key.active:
-                        key.active = False
+                    if key.idname == "wm.call_panel" and key.type == "RIGHTMOUSE":
+                        key.active = True
                         key.value = "CLICK"
         else:
             for key in addon_kc.keymaps["3D View"].keymap_items:
@@ -294,15 +294,15 @@ class RightMouseNavigationPreferences(AddonPreferences):
                     key.type = "RIGHTMOUSE"
                     key.value = "CLICK_DRAG"
                     key.alt = True
-            for i in menumodes:
+            for i in self.menumodes:
                 for key in keyconfig.keymaps[i].keymap_items:
                     if key.idname == "wm.call_menu" and key.type == "RIGHTMOUSE":
                         key.active = False
                         key.value = "PRESS"
-            for i in panelmodes:
+            for i in self.panelmodes:
                 for key in keyconfig.keymaps[i].keymap_items:
                     if key.idname == "wm.call_panel" and key.type == "RIGHTMOUSE":
-                        key.active = True
+                        key.active = False
                         key.value = "PRESS"
 
     def draw(self, context):
