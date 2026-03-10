@@ -67,12 +67,33 @@ def update_node_keymap(self, context):
             key.active = addon_prefs.enable_for_node_editors
 
 
-def update_rebind_3dview_keymap(self, context):
-    self.rebind_3dview_keymap(context, self.rmb_pan_rotate)
+def update_rebind_3dview_keymap(self, context):    
+    wm = context.window_manager
+    active_keyconfig = wm.keyconfigs.active
+    blender_keyconfig = wm.keyconfigs["Blender"]
+    user_keyconfig = wm.keyconfigs["Blender user"]
+
+    try:
+        self.rebind_3dview_keymap(active_keyconfig, self.rmb_pan_rotate)
+    except KeyError:
+        self.rebind_3dview_keymap(blender_keyconfig, self.rmb_pan_rotate)
+    except KeyError:
+        self.rebind_3dview_keymap(user_keyconfig, self.rmb_pan_rotate)
 
 
-def update_rebind_switch_nav_rotate(self, context):
-    self.rebind_switch_nav_rotate(context, self.rmb_rotate_switch)
+def update_rebind_switch_nav_rotate(self, context):    
+    wm = context.window_manager
+    active_keyconfig = wm.keyconfigs.active
+    addon_keyconfig = wm.keyconfigs.addon
+    blender_keyconfig = wm.keyconfigs["Blender"]
+    user_keyconfig = wm.keyconfigs["Blender user"]
+
+    try:
+        self.rebind_switch_nav_rotate(active_keyconfig, addon_keyconfig, self.rmb_rotate_switch)
+    except KeyError:
+        self.rebind_switch_nav_rotate(blender_keyconfig, addon_keyconfig, self.rmb_rotate_switch)
+    except KeyError:
+        self.rebind_switch_nav_rotate(user_keyconfig, addon_keyconfig, self.rmb_rotate_switch)
 
 
 class RightMouseNavigationPreferences(AddonPreferences):
@@ -241,7 +262,6 @@ class RightMouseNavigationPreferences(AddonPreferences):
                     key.type = "RIGHTMOUSE"
 
     def rebind_switch_nav_rotate(self, keyconfig, addon_kc, isActive):
-
         if isActive:
             for key in addon_kc.keymaps["3D View"].keymap_items:
                 if key.idname == "rmn.right_mouse_navigation":
