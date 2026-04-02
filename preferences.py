@@ -67,7 +67,7 @@ def update_node_keymap(self, context):
             key.active = addon_prefs.enable_for_node_editors
 
 
-def update_rebind_3dview_keymap(self, context):    
+def update_rebind_3dview_keymap(self, context):
     wm = context.window_manager
     active_keyconfig = wm.keyconfigs.active
     blender_keyconfig = wm.keyconfigs["Blender"]
@@ -81,7 +81,7 @@ def update_rebind_3dview_keymap(self, context):
         self.rebind_3dview_keymap(user_keyconfig, self.rmb_pan_rotate)
 
 
-def update_rebind_switch_nav_rotate(self, context):    
+def update_rebind_switch_nav_rotate(self, context):
     wm = context.window_manager
     active_keyconfig = wm.keyconfigs.active
     addon_keyconfig = wm.keyconfigs.addon
@@ -89,11 +89,17 @@ def update_rebind_switch_nav_rotate(self, context):
     user_keyconfig = wm.keyconfigs["Blender user"]
 
     try:
-        self.rebind_switch_nav_rotate(active_keyconfig, addon_keyconfig, self.rmb_rotate_switch)
+        self.rebind_switch_nav_rotate(
+            active_keyconfig, addon_keyconfig, self.rmb_rotate_switch
+        )
     except KeyError:
-        self.rebind_switch_nav_rotate(blender_keyconfig, addon_keyconfig, self.rmb_rotate_switch)
+        self.rebind_switch_nav_rotate(
+            blender_keyconfig, addon_keyconfig, self.rmb_rotate_switch
+        )
     except KeyError:
-        self.rebind_switch_nav_rotate(user_keyconfig, addon_keyconfig, self.rmb_rotate_switch)
+        self.rebind_switch_nav_rotate(
+            user_keyconfig, addon_keyconfig, self.rmb_rotate_switch
+        )
 
 
 class RightMouseNavigationPreferences(AddonPreferences):
@@ -261,7 +267,7 @@ class RightMouseNavigationPreferences(AddonPreferences):
                 if key.idname == "transform.translate" and key.type == "MIDDLEMOUSE":
                     key.type = "RIGHTMOUSE"
 
-    def rebind_switch_nav_rotate(self, keyconfig, addon_kc, isActive):        
+    def rebind_switch_nav_rotate(self, keyconfig, addon_kc, isActive):
         if isActive:
             for key in addon_kc.keymaps["3D View"].keymap_items:
                 if key.idname == "rmn.right_mouse_navigation":
@@ -349,7 +355,9 @@ class RightMouseNavigationPreferences(AddonPreferences):
         if panel:
             row = panel.row()
             row.prop(self, "rmb_pan_rotate", text="Swap MMB & RMB Navigation Controls")
-            row.prop(self, "rmb_rotate_switch", text="Require Alt for Walk/Fly Navigation")
+            row.prop(
+                self, "rmb_rotate_switch", text="Require Alt for Walk/Fly Navigation"
+            )
 
             # Split the layout at 30%
             split = panel.split(factor=0.3)
@@ -413,7 +421,9 @@ class RightMouseNavigationPreferences(AddonPreferences):
             row.label(text="", icon="MOUSE_RMB_DRAG")
             label = row.row()
             label.active = False
-            text = "(Alt + Right Mouse)" if not self.rmb_rotate_switch else "(Right Mouse)"
+            text = (
+                "(Alt + Right Mouse)" if not self.rmb_rotate_switch else "(Right Mouse)"
+            )
             label.label(text=text)
 
             row = content.row(align=True)
