@@ -67,12 +67,33 @@ def update_node_keymap(self, context):
             key.active = addon_prefs.enable_for_node_editors
 
 
-def update_rebind_3dview_keymap(self, context):
-    self.rebind_3dview_keymap(context, self.rmb_pan_rotate)
+def update_rebind_3dview_keymap(self, context):    
+    wm = context.window_manager
+    active_keyconfig = wm.keyconfigs.active
+    blender_keyconfig = wm.keyconfigs["Blender"]
+    user_keyconfig = wm.keyconfigs["Blender user"]
+
+    try:
+        self.rebind_3dview_keymap(active_keyconfig, self.rmb_pan_rotate)
+    except KeyError:
+        self.rebind_3dview_keymap(blender_keyconfig, self.rmb_pan_rotate)
+    except KeyError:
+        self.rebind_3dview_keymap(user_keyconfig, self.rmb_pan_rotate)
 
 
-def update_rebind_switch_nav_rotate(self, context):
-    self.rebind_switch_nav_rotate(context, self.rmb_rotate_switch)
+def update_rebind_switch_nav_rotate(self, context):    
+    wm = context.window_manager
+    active_keyconfig = wm.keyconfigs.active
+    addon_keyconfig = wm.keyconfigs.addon
+    blender_keyconfig = wm.keyconfigs["Blender"]
+    user_keyconfig = wm.keyconfigs["Blender user"]
+
+    try:
+        self.rebind_switch_nav_rotate(active_keyconfig, addon_keyconfig, self.rmb_rotate_switch)
+    except KeyError:
+        self.rebind_switch_nav_rotate(blender_keyconfig, addon_keyconfig, self.rmb_rotate_switch)
+    except KeyError:
+        self.rebind_switch_nav_rotate(user_keyconfig, addon_keyconfig, self.rmb_rotate_switch)
 
 
 class RightMouseNavigationPreferences(AddonPreferences):
@@ -152,13 +173,9 @@ class RightMouseNavigationPreferences(AddonPreferences):
         update=update_rebind_switch_nav_rotate,
     )
 
-    def rebind_3dview_keymap(self, context, isActive):
-        wm = context.window_manager
-        active_kc = wm.keyconfigs.active
-        addon_kc = wm.keyconfigs.addon
-
+    def rebind_3dview_keymap(self, keyconfig, isActive):
         if isActive:
-            for key in active_kc.keymaps["3D View"].keymap_items:
+            for key in keyconfig.keymaps["3D View"].keymap_items:
                 if key.idname == "view3d.cursor3d" and key.type == "RIGHTMOUSE":
                     key.type = "MIDDLEMOUSE"
                     key.value = "CLICK"
@@ -201,7 +218,7 @@ class RightMouseNavigationPreferences(AddonPreferences):
                 if key.idname == "transform.translate" and key.type == "RIGHTMOUSE":
                     key.type = "MIDDLEMOUSE"
         else:
-            for key in active_kc.keymaps["3D View"].keymap_items:
+            for key in keyconfig.keymaps["3D View"].keymap_items:
                 if key.idname == "view3d.cursor3d" and key.type == "MIDDLEMOUSE":
                     key.type = "RIGHTMOUSE"
                     key.value = "CLICK"
@@ -244,31 +261,27 @@ class RightMouseNavigationPreferences(AddonPreferences):
                 if key.idname == "transform.translate" and key.type == "MIDDLEMOUSE":
                     key.type = "RIGHTMOUSE"
 
-    def rebind_switch_nav_rotate(self, context, isActive):
-        wm = context.window_manager
-        active_kc = wm.keyconfigs.active
-        addon_kc = wm.keyconfigs.addon
-
+    def rebind_switch_nav_rotate(self, keyconfig, addon_kc, isActive):        
         if isActive:
             for key in addon_kc.keymaps["3D View"].keymap_items:
                 if key.idname == "rmn.right_mouse_navigation":
                     key.type = "RIGHTMOUSE"
                     key.value = "PRESS"
                     key.alt = True
-            for key in active_kc.keymaps["3D View"].keymap_items:
+            for key in keyconfig.keymaps["3D View"].keymap_items:
                 if key.idname == "view3d.rotate" and key.type == "RIGHTMOUSE":
                     key.type = "RIGHTMOUSE"
                     key.value = "CLICK_DRAG"
                     key.alt = False
-            for i in menumodes:
-                for key in active_kc.keymaps[i].keymap_items:
+            for i in self.menumodes:
+                for key in keyconfig.keymaps[i].keymap_items:
                     if key.idname == "wm.call_menu" and key.type == "RIGHTMOUSE":
                         key.active = True
                         key.value = "CLICK"
-            for i in panelmodes:
-                for key in active_kc.keymaps[i].keymap_items:
-                    if key.idname == "wm.call_panel" and key.type == "RIGHTMOUSE" and key.active:
-                        key.active = False
+            for i in self.panelmodes:
+                for key in keyconfig.keymaps[i].keymap_items:
+                    if key.idname == "wm.call_panel" and key.type == "RIGHTMOUSE":
+                        key.active = True
                         key.value = "CLICK"
         else:
             for key in addon_kc.keymaps["3D View"].keymap_items:
@@ -276,20 +289,20 @@ class RightMouseNavigationPreferences(AddonPreferences):
                     key.type = "RIGHTMOUSE"
                     key.value = "PRESS"
                     key.alt = False
-            for key in active_kc.keymaps["3D View"].keymap_items:
+            for key in keyconfig.keymaps["3D View"].keymap_items:
                 if key.idname == "view3d.rotate" and key.type == "RIGHTMOUSE":
                     key.type = "RIGHTMOUSE"
                     key.value = "CLICK_DRAG"
                     key.alt = True
-            for i in menumodes:
-                for key in active_kc.keymaps[i].keymap_items:
+            for i in self.menumodes:
+                for key in keyconfig.keymaps[i].keymap_items:
                     if key.idname == "wm.call_menu" and key.type == "RIGHTMOUSE":
                         key.active = False
                         key.value = "PRESS"
-            for i in panelmodes:
-                for key in active_kc.keymaps[i].keymap_items:
+            for i in self.panelmodes:
+                for key in keyconfig.keymaps[i].keymap_items:
                     if key.idname == "wm.call_panel" and key.type == "RIGHTMOUSE":
-                        key.active = True
+                        key.active = False
                         key.value = "PRESS"
 
     def draw(self, context):
