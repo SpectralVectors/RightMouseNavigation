@@ -33,7 +33,7 @@ classes = [
 ]
 
 
-def register_keymaps(menumodes, panelmodes, keyconfig):    
+def register_keymaps(menumodes, panelmodes, keyconfig):
     # Deactivating menus
     for i in menumodes:
         for key in keyconfig.keymaps[i].keymap_items:
@@ -47,7 +47,11 @@ def register_keymaps(menumodes, panelmodes, keyconfig):
     # Deactivating panels
     for i in panelmodes:
         for key in keyconfig.keymaps[i].keymap_items:
-            if key.idname == "wm.call_panel" and key.type == "RIGHTMOUSE" and key.active:
+            if (
+                key.idname == "wm.call_panel"
+                and key.type == "RIGHTMOUSE"
+                and key.active
+            ):
                 key.active = False
 
     # Changing the Walk Modal Map
@@ -90,7 +94,7 @@ def rebind_rmb(scene):
     addon_prefs = bpy.context.preferences.addons[__package__].preferences
     addon_prefs.menumodes = menumodes
     addon_prefs.panelmodes = panelmodes
-    
+
     wm = bpy.context.window_manager
     active_keyconfig = wm.keyconfigs.active
     addon_keyconfig = wm.keyconfigs.addon
@@ -99,13 +103,19 @@ def rebind_rmb(scene):
 
     try:
         addon_prefs.rebind_3dview_keymap(active_keyconfig, addon_prefs.rmb_pan_rotate)
-        addon_prefs.rebind_switch_nav_rotate(active_keyconfig, addon_keyconfig, addon_prefs.rmb_rotate_switch)
+        addon_prefs.rebind_switch_nav_rotate(
+            active_keyconfig, addon_keyconfig, addon_prefs.rmb_rotate_switch
+        )
     except KeyError:
         addon_prefs.rebind_3dview_keymap(blender_keyconfig, addon_prefs.rmb_pan_rotate)
-        addon_prefs.rebind_switch_nav_rotate(blender_keyconfig, addon_keyconfig, addon_prefs.rmb_rotate_switch)
+        addon_prefs.rebind_switch_nav_rotate(
+            blender_keyconfig, addon_keyconfig, addon_prefs.rmb_rotate_switch
+        )
     except KeyError:
         addon_prefs.rebind_3dview_keymap(user_keyconfig, addon_prefs.rmb_pan_rotate)
-        addon_prefs.rebind_switch_nav_rotate(user_keyconfig, addon_keyconfig, addon_prefs.rmb_rotate_switch)
+        addon_prefs.rebind_switch_nav_rotate(
+            user_keyconfig, addon_keyconfig, addon_prefs.rmb_rotate_switch
+        )
 
 
 def register():
