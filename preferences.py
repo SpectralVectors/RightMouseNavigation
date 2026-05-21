@@ -119,10 +119,10 @@ class RightMouseNavigationPreferences(AddonPreferences):
 
     time: FloatProperty(
         name="Time Threshold",
-        description="How long you have hold right mouse to open menu",
+        description="How long you have hold right mouse to activate Walk/Orbit navigation",
         default=1.0,
         min=0.1,
-        max=10,
+        max=0.15,
     )
 
     reset_cursor_on_exit: BoolProperty(

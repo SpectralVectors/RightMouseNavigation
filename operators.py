@@ -15,7 +15,9 @@ class RMN_OT_right_mouse_navigation(Operator):
     _finished = False
     _callMenu = False
     _ortho = False
-    _back_to_ortho = False
+    # [New Status Lock]: Mark whether Blender’s built-in navigation system has actually been activated
+    _navigation_started = False
+    
     menu_by_mode = {
         "OBJECT": "VIEW3D_MT_object_context_menu",
         "EDIT_MESH": "VIEW3D_MT_edit_mesh_context_menu",
@@ -36,29 +38,25 @@ class RMN_OT_right_mouse_navigation(Operator):
         preferences = context.preferences
         addon_prefs = preferences.addons[__package__].preferences
         enable_nodes = addon_prefs.enable_for_node_editors
+        disable_camera = addon_prefs.disable_camera_navigation
+        navigation_mode = addon_prefs.navigation_mode
 
         space_type = context.space_data.type
 
         if space_type == "VIEW_3D":
-            # Check if the Viewport is Perspective or Orthographic
             if bpy.context.region_data.is_perspective:
                 self._ortho = False
-            else:
-                self._back_to_ortho = addon_prefs.return_to_ortho_on_exit
 
-        # The _finished Boolean acts as a flag to exit the modal loop,
-        # it is not made True until after the cancel function is called
+        # 1. Exit and closing logic
         if self._finished:
-
             def reset_cursor():
-                # Reset blender window cursor to previous position
                 area = context.area
                 x = area.x
                 y = area.y
                 x += int(area.width / 2)
                 y += int(area.height / 2)
                 bpy.context.window.cursor_warp(x, y)
-
+                
             if self._callMenu:
                 # Always reset the cursor if menu is called, as that implies a canceled navigation
                 if addon_prefs.reset_cursor_on_exit and not space_type == "NODE_EDITOR":
@@ -69,35 +67,59 @@ class RMN_OT_right_mouse_navigation(Operator):
                 if addon_prefs.reset_cursor_on_exit:
                     reset_cursor()
 
-            if self._back_to_ortho:
-                bpy.ops.view3d.view_persportho()
-
             return {"CANCELLED"}
 
-        if space_type == "VIEW_3D" or space_type == "NODE_EDITOR" and enable_nodes:
-            if event.type in {"RIGHTMOUSE"}:
-                if event.value in {"RELEASE"}:
-                    # This brings back our mouse cursor to use with the menu
+        # 2. Core: timing listener control
+        if space_type == "VIEW_3D" or (space_type == "NODE_EDITOR" and enable_nodes):
+            
+            # case: Timer event (core delayed startup trigger)
+            if event.type == "TIMER":
+                if self._count <= addon_prefs.time:
+                    self._count += 0.1  # Corresponding timer 0.1s step size
+            
+            # case: Player releases right mouse button before threshold time -> short click to call menu
+            if event.type == "RIGHTMOUSE":
+                if event.value == "RELEASE":
                     context.window.cursor_modal_restore()
-                    # If the length of time you've been holding down
-                    # Right Mouse and Mouse move distance is longer than the threshold value,
-                    # then set flag to call a context menu
                     if self._count < addon_prefs.time:
                         self._callMenu = True
                     self.cancel(context)
-                    # We now set the flag to true to exit the modal operator on the next loop
                     self._finished = True
+                    
+                    # if release occurs before navigation has started
                     return {"PASS_THROUGH"}
+            
+            # [Delayed Trigger Core]: When holding time exceeds threshold, and navigation has not been started
+            if self._count >= addon_prefs.time and not self._navigation_started:
+                self._navigation_started = True # Lock, to prevent repeated calls
+                
+                if space_type == "VIEW_3D":
+                    view = context.space_data.region_3d.view_perspective
+                    if not (view == "CAMERA" and disable_camera):
+                        try:
+                            # Only now transfer the event to Walk or Orbit!
+                            if navigation_mode == "ORBIT":
+                                bpy.ops.view3d.rotate("INVOKE_DEFAULT")
+                            else:
+                                bpy.ops.view3d.walk("INVOKE_DEFAULT")
+                            print("[RMN] Long press successfully activated Walk/Orbit navigation")
 
-            if event.type == "TIMER":
-                if self._count <= addon_prefs.time:
-                    self._count += 0.1
+                            context.window.cursor_modal_restore()
+                        except RuntimeError:
+                            self.report({"ERROR"}, "Cannot Navigate an Object with Constraints")
+                elif space_type == "NODE_EDITOR" and enable_nodes:
+                    bpy.ops.view2d.pan("INVOKE_DEFAULT")
+                    
+                self.cancel(context)
+                # FINISH pollutes undo records
+                return {"CANCELLED"}
+            # Core: When the Walk/Orbit operator is activated above, we must feed subsequent mouse drag events
+            # through PASS_THROUGH, otherwise the Walk mode cannot take over mouse movement.
             return {"PASS_THROUGH"}
 
     def callMenu(self, context):
         wm = context.window_manager
         blender_keyconfig = wm.keyconfigs["Blender"]
-
         select_mouse = blender_keyconfig.preferences.select_mouse
         space_type = context.space_data.type
 
@@ -119,7 +141,6 @@ class RMN_OT_right_mouse_navigation(Operator):
                 bpy.ops.view3d.select("INVOKE_DEFAULT")
 
     def invoke(self, context, event):
-        # Store Blender cursor position
         self.view_x = event.mouse_x
         self.view_y = event.mouse_y
         return self.execute(context)
@@ -128,37 +149,17 @@ class RMN_OT_right_mouse_navigation(Operator):
         preferences = context.preferences
         addon_prefs = preferences.addons[__package__].preferences
         enable_nodes = addon_prefs.enable_for_node_editors
-        disable_camera = addon_prefs.disable_camera_navigation
-        navigation_mode = addon_prefs.navigation_mode
-
         space_type = context.space_data.type
 
-        # Execute is the first thing called in our operator, so we start by
-        # calling the appropriate navigation based on user preference
         if space_type == "VIEW_3D":
-            view = context.space_data.region_3d.view_perspective
-            if not (view == "CAMERA" and disable_camera):
-                try:
-                    if navigation_mode == "ORBIT":
-                        bpy.ops.view3d.rotate("INVOKE_DEFAULT")
-                    else:
-                        bpy.ops.view3d.walk("INVOKE_DEFAULT")
-                    # Adding the timer and starting the loop
-                    wm = context.window_manager
-                    self._timer = wm.event_timer_add(0.1, window=context.window)
-                    wm.modal_handler_add(self)
-                    return {"RUNNING_MODAL"}
-                except RuntimeError:
-                    self.report({"ERROR"}, "Cannot Navigate an Object with Constraints")
-                    return {"CANCELLED"}
-            else:
-                return {"CANCELLED"}
+            wm = context.window_manager
+            # Start high-frequency timer (check long-press status every 0.1 seconds)
+            self._timer = wm.event_timer_add(0.1, window=context.window)
+            wm.modal_handler_add(self)
+            return {"RUNNING_MODAL"}
 
         elif space_type == "NODE_EDITOR" and enable_nodes:
-            print("In the Nodes")
-            bpy.ops.view2d.pan("INVOKE_DEFAULT")
             wm = context.window_manager
-            # Adding the timer and starting the loop
             self._timer = wm.event_timer_add(0.01, window=context.window)
             wm.modal_handler_add(self)
             return {"RUNNING_MODAL"}
@@ -166,6 +167,8 @@ class RMN_OT_right_mouse_navigation(Operator):
         elif space_type == "IMAGE_EDITOR":
             bpy.ops.wm.call_panel(name="VIEW3D_PT_paint_texture_context_menu")
             return {"FINISHED"}
+            
+        return {"CANCELLED"}
 
     def cancel(self, context):
         wm = context.window_manager
@@ -174,7 +177,6 @@ class RMN_OT_right_mouse_navigation(Operator):
 
 class RMN_OT_toggle_cam_navigation(Operator):
     """Turn Mouse Navigation of Camera On and Off"""
-
     bl_idname = "rmn.toggle_cam_navigation"
     bl_label = "Toggle Mouse Camera Navigation"
     bl_options = {"REGISTER", "UNDO"}
