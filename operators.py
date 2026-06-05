@@ -43,7 +43,7 @@ class RMN_OT_right_mouse_navigation(Operator):
             # Check if the Viewport is Perspective or Orthographic
             if bpy.context.region_data.is_perspective:
                 self._ortho = False
-            else:
+            elif self._navigation_started:
                 self._back_to_ortho = addon_prefs.return_to_ortho_on_exit
 
         # The _finished Boolean acts as a flag to exit the modal loop,
@@ -82,7 +82,7 @@ class RMN_OT_right_mouse_navigation(Operator):
                     # If the length of time you've been holding down
                     # Right Mouse and Mouse move distance is longer than the threshold value,
                     # then set flag to call a context menu
-                    if self._count < addon_prefs.time:
+                    if (space_type == "VIEW_3D" and not self._navigation_started) or self._count < addon_prefs.time:
                         self._callMenu = True
                     self.cancel(context)
                     # We now set the flag to true to exit the modal operator on the next loop
@@ -92,6 +92,25 @@ class RMN_OT_right_mouse_navigation(Operator):
             if event.type == "TIMER":
                 if self._count <= addon_prefs.time:
                     self._count += 0.1
+
+                if space_type == "VIEW_3D" and not self._navigation_started:
+                    start_delay = addon_prefs.navigation_start_delay
+                    if addon_prefs.navigation_start_delay_ortho_only and context.region_data.is_perspective:
+                        start_delay = 0.0
+                    self._delay_elapsed += 0.1
+                    if self._delay_elapsed >= start_delay:
+                        try:
+                            if addon_prefs.navigation_mode == "ORBIT":
+                                bpy.ops.view3d.rotate("INVOKE_DEFAULT")
+                            else:
+                                bpy.ops.view3d.walk("INVOKE_DEFAULT")
+                            self._navigation_started = True
+                            if not context.region_data.is_perspective:
+                                self._back_to_ortho = addon_prefs.return_to_ortho_on_exit
+                        except RuntimeError:
+                            self.report({"ERROR"}, "Cannot Navigate an Object with Constraints")
+                            self.cancel(context)
+                            return {"CANCELLED"}
             return {"PASS_THROUGH"}
 
     def callMenu(self, context):
@@ -120,6 +139,8 @@ class RMN_OT_right_mouse_navigation(Operator):
 
     def invoke(self, context, event):
         # Store Blender cursor position
+        self._navigation_started = False
+        self._delay_elapsed = 0.0
         self.view_x = event.mouse_x
         self.view_y = event.mouse_y
         return self.execute(context)
@@ -138,19 +159,26 @@ class RMN_OT_right_mouse_navigation(Operator):
         if space_type == "VIEW_3D":
             view = context.space_data.region_3d.view_perspective
             if not (view == "CAMERA" and disable_camera):
-                try:
-                    if navigation_mode == "ORBIT":
-                        bpy.ops.view3d.rotate("INVOKE_DEFAULT")
-                    else:
-                        bpy.ops.view3d.walk("INVOKE_DEFAULT")
-                    # Adding the timer and starting the loop
-                    wm = context.window_manager
-                    self._timer = wm.event_timer_add(0.1, window=context.window)
-                    wm.modal_handler_add(self)
-                    return {"RUNNING_MODAL"}
-                except RuntimeError:
-                    self.report({"ERROR"}, "Cannot Navigate an Object with Constraints")
-                    return {"CANCELLED"}
+                start_delay = addon_prefs.navigation_start_delay
+                if addon_prefs.navigation_start_delay_ortho_only and context.region_data.is_perspective:
+                    start_delay = 0.0
+                if start_delay <= 0:
+                    try:
+                        if navigation_mode == "ORBIT":
+                            bpy.ops.view3d.rotate("INVOKE_DEFAULT")
+                        else:
+                            bpy.ops.view3d.walk("INVOKE_DEFAULT")
+                        self._navigation_started = True
+                        if not context.region_data.is_perspective:
+                            self._back_to_ortho = addon_prefs.return_to_ortho_on_exit
+                    except RuntimeError:
+                        self.report({"ERROR"}, "Cannot Navigate an Object with Constraints")
+                        return {"CANCELLED"}
+                # Adding the timer and starting the loop
+                wm = context.window_manager
+                self._timer = wm.event_timer_add(0.1, window=context.window)
+                wm.modal_handler_add(self)
+                return {"RUNNING_MODAL"}
             else:
                 return {"CANCELLED"}
 
