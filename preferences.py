@@ -125,6 +125,20 @@ class RightMouseNavigationPreferences(AddonPreferences):
         max=10,
     )
 
+    navigation_start_delay: FloatProperty(
+        name="Navigation Start Delay",
+        description="Hold right mouse this long before walk/orbit navigation begins",
+        default=0.15,
+        min=0.0,
+        max=1.0,
+    )
+
+    navigation_start_delay_ortho_only: BoolProperty(
+        name="Delay in Orthographic Views Only",
+        description="Apply the start delay only when the viewport is orthographic",
+        default=True,
+    )
+
     reset_cursor_on_exit: BoolProperty(
         name="Reset Cursor on Exit",
         description="After exiting navigation, this determines if the cursor stays "
@@ -316,6 +330,8 @@ class RightMouseNavigationPreferences(AddonPreferences):
         box = row.box()
         box.label(text="Menu / Movement", icon="DRIVER_DISTANCE")
         box.prop(self, "time")
+        box.prop(self, "navigation_start_delay")
+        box.prop(self, "navigation_start_delay_ortho_only")
 
         # Cursor & View Boxes
         row = layout.row()
