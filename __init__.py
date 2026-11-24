@@ -33,7 +33,7 @@ classes = [
 ]
 
 
-def register_keymaps(menumodes, panelmodes, keyconfig):    
+def register_keymaps(menumodes, panelmodes, keyconfig):
     # Deactivating menus
     for i in menumodes:
         for key in keyconfig.keymaps[i].keymap_items:
@@ -90,7 +90,7 @@ def rebind_rmb(scene):
     addon_prefs = bpy.context.preferences.addons[__package__].preferences
     addon_prefs.menumodes = menumodes
     addon_prefs.panelmodes = panelmodes
-    
+
     wm = bpy.context.window_manager
     active_keyconfig = wm.keyconfigs.active
     addon_keyconfig = wm.keyconfigs.addon
@@ -118,30 +118,18 @@ def register():
         wm = bpy.context.window_manager
         addon_kc = wm.keyconfigs.addon
 
-        km = addon_kc.keymaps.new(
-            name="3D View",
-            space_type="VIEW_3D",
-        )
-        kmi = km.keymap_items.new(
-            "rmn.right_mouse_navigation",
-            "RIGHTMOUSE",
-            "PRESS",
-        )
-        kmi.active = True
-
-        km2 = addon_kc.keymaps.new(
-            name="Node Editor",
-            space_type="NODE_EDITOR",
-        )
-        kmi2 = km2.keymap_items.new(
-            "rmn.right_mouse_navigation",
-            "RIGHTMOUSE",
-            "PRESS",
-        )
-        kmi2.active = False
-
-        addon_keymaps.append((km, kmi))
-        addon_keymaps.append((km2, kmi2))
+        for name, space_type, active in (
+            ("3D View", "VIEW_3D", True),
+            ("Node Editor", "NODE_EDITOR", False),
+        ):
+            km = addon_kc.keymaps.new(name=name, space_type=space_type)
+            # Let Blender distinguish clicks from drags using its input threshold.
+            for value in ("CLICK", "CLICK_DRAG"):
+                kmi = km.keymap_items.new(
+                    "rmn.right_mouse_navigation", "RIGHTMOUSE", value
+                )
+                kmi.active = active
+                addon_keymaps.append((km, kmi))
 
         active_keyconfig = wm.keyconfigs.active
         blender_keyconfig = wm.keyconfigs["Blender"]

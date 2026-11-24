@@ -26,7 +26,7 @@ Download __RightMouseNavigation.zip__ from the __Releases__ section on the right
 
 ## How to Use
 ### 3D Viewport
-- Right Mouse Hold + WASD to Navigate 3D Viewport
+- Right Mouse Drag, then WASD to Navigate 3D Viewport
 - Right Mouse Click to open Context Menus
 - Mouse Wheel to adjust Viewport Move Speed (while Right Mouse is held)
 
@@ -39,13 +39,13 @@ The addon was designed with Left Click Select users in mind, to remap navigation
 
 To broaden the functionality of the addon, Right Click Select support has been added:
 - clicking Right Mouse will select
-- holding Right Mouse allows you to navigate
+- dragging Right Mouse starts navigation; keep holding it to navigate
 - the W key opens context menus, as before
 
 ### Preferences
-You can adjust the threshold for when you navigate/open menus by adjusting the time the mouse button is held in __Edit__ > __Preferences__ > __Addons__ > __View 3D: Right Mouse Navigation__ by clicking the dropdown arrow and tweaking the values there.
+Navigation starts only after dragging with Right Mouse held, using Blender's mouse drag threshold in __Edit__ > __Preferences__ > __Input__
 
-Additionally, in the settings, you can change the cursor resetting behavior. By default, the cursor will snap back to the location where you initally clicked Right Mouse Button, after navigation exits. If you would rather the cursor stay in the center (where the navigation crosshair is) after navigation, you can disable the setting. 
+Additionally you can change the cursor resetting behavior: By default, the cursor will snap back to the location where you initally clicked Right Mouse Button, after navigation exits. If you would rather the cursor stay in the center (where the navigation crosshair is) after navigation, you can disable the setting. 
 
 You can enable/disable Node Editor mode in the Preferences.
 
@@ -64,7 +64,7 @@ Other controls that were switched to Middle Mouse:
 
 There is also a setting to switch the activation of Right Mouse Navigation mode and the 3D View Rotate keymapping:
 - Drag + RMB will now Rotate 3D View
-- Alt + RMB then WASD for Navigation Mode
+- Alt + RMB Drag, then WASD for Navigation Mode
 
 ## Acknowledgements and Thanks
 
