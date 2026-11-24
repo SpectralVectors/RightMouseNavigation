@@ -89,7 +89,18 @@ class RMN_OT_right_mouse_navigation(Operator):
                     self._finished = True
                     return {"PASS_THROUGH"}
 
-            if event.type == "TIMER":
+            # Change active camera focal length with scroll wheel while holding RMB
+            if space_type == 'VIEW_3D' and event.type in {'WHEELUPMOUSE', 'WHEELDOWNMOUSE'}:
+                cam = context.scene.camera
+                if cam is not None and cam.type == 'CAMERA':
+                    step = 5.0
+                    if event.type == 'WHEELUPMOUSE':
+                        cam.data.lens += step
+                    else:
+                        cam.data.lens = max(1.0, cam.data.lens - step)
+                    return {'RUNNING_MODAL'}
+
+            if event.type == 'TIMER':
                 if self._count <= addon_prefs.time:
                     self._count += 0.1
             return {"PASS_THROUGH"}
