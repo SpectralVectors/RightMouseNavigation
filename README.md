@@ -39,7 +39,7 @@ The addon was designed with Left Click Select users in mind, to remap navigation
 
 To broaden the functionality of the addon, Right Click Select support has been added:
 - clicking Right Mouse will select
-- dragging Right Mouse starts navigation; keep holding it to navigate
+- clicking then dragging Right Mouse will navigate
 - the W key opens context menus, as before
 
 ### Preferences
