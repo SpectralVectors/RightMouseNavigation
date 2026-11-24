@@ -2,7 +2,6 @@ import bpy
 from bpy.props import (
     BoolProperty,
     EnumProperty,
-    FloatProperty,
 )
 from bpy.types import AddonPreferences
 
@@ -67,7 +66,7 @@ def update_node_keymap(self, context):
             key.active = addon_prefs.enable_for_node_editors
 
 
-def update_rebind_3dview_keymap(self, context):    
+def update_rebind_3dview_keymap(self, context):
     wm = context.window_manager
     active_keyconfig = wm.keyconfigs.active
     blender_keyconfig = wm.keyconfigs["Blender"]
@@ -81,7 +80,7 @@ def update_rebind_3dview_keymap(self, context):
         self.rebind_3dview_keymap(user_keyconfig, self.rmb_pan_rotate)
 
 
-def update_rebind_switch_nav_rotate(self, context):    
+def update_rebind_switch_nav_rotate(self, context):
     wm = context.window_manager
     active_keyconfig = wm.keyconfigs.active
     addon_keyconfig = wm.keyconfigs.addon
@@ -115,14 +114,6 @@ class RightMouseNavigationPreferences(AddonPreferences):
             ),
         ],
         default="WALK",
-    )
-
-    time: FloatProperty(
-        name="Time Threshold",
-        description="How long you have hold right mouse to open menu",
-        default=1.0,
-        min=0.1,
-        max=10,
     )
 
     reset_cursor_on_exit: BoolProperty(
@@ -261,12 +252,11 @@ class RightMouseNavigationPreferences(AddonPreferences):
                 if key.idname == "transform.translate" and key.type == "MIDDLEMOUSE":
                     key.type = "RIGHTMOUSE"
 
-    def rebind_switch_nav_rotate(self, keyconfig, addon_kc, isActive):        
+    def rebind_switch_nav_rotate(self, keyconfig, addon_kc, isActive):
         if isActive:
             for key in addon_kc.keymaps["3D View"].keymap_items:
                 if key.idname == "rmn.right_mouse_navigation":
                     key.type = "RIGHTMOUSE"
-                    key.value = "PRESS"
                     key.alt = True
             for key in keyconfig.keymaps["3D View"].keymap_items:
                 if key.idname == "view3d.rotate" and key.type == "RIGHTMOUSE":
@@ -287,7 +277,6 @@ class RightMouseNavigationPreferences(AddonPreferences):
             for key in addon_kc.keymaps["3D View"].keymap_items:
                 if key.idname == "rmn.right_mouse_navigation":
                     key.type = "RIGHTMOUSE"
-                    key.value = "PRESS"
                     key.alt = False
             for key in keyconfig.keymaps["3D View"].keymap_items:
                 if key.idname == "view3d.rotate" and key.type == "RIGHTMOUSE":
@@ -308,14 +297,11 @@ class RightMouseNavigationPreferences(AddonPreferences):
     def draw(self, context):
         layout = self.layout
 
-        # Navigation Mode & Menu / Movement Boxes
+        # Navigation Mode Box
         row = layout.row()
         box = row.box()
         box.label(text="Navigation Mode", icon="ORIENTATION_GIMBAL")
         box.prop(self, "navigation_mode", text="")
-        box = row.box()
-        box.label(text="Menu / Movement", icon="DRIVER_DISTANCE")
-        box.prop(self, "time")
 
         # Cursor & View Boxes
         row = layout.row()
